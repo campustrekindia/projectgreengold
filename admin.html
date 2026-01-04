@@ -11,7 +11,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap');
         body { font-family: 'Montserrat', sans-serif; background-color: #f3f4f6; }
         
-        /* Sidebar & Layout */
+        /* Layout */
         .sidebar { width: 260px; background: #111827; height: 100vh; position: fixed; left: 0; top: 0; color: #9ca3af; transition: all 0.3s; z-index: 50; overflow-y: auto; }
         .nav-item { padding: 12px 20px; margin: 4px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s; }
         .nav-item:hover, .nav-item.active { background: #1f2937; color: #10b981; }
@@ -40,7 +40,7 @@
 </head>
 <body>
 
-    <!-- Permission Modal -->
+    <!-- Permission Modal (Hidden by default) -->
     <div id="permission-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 text-center">
             <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl"><i class="fas fa-lock"></i></div>
@@ -92,7 +92,6 @@
 
         <!-- VIEW 1: DASHBOARD (Summary) -->
         <div id="dashboard-view" class="view-section">
-            <!-- Stats -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <div class="card border-l-4 border-green-500"><p class="text-gray-500 text-xs font-bold uppercase">Total Revenue</p><h3 class="text-2xl font-bold text-gray-800 mt-1">₹<span id="stat-revenue">0</span></h3></div>
                 <div class="card border-l-4 border-yellow-500"><p class="text-gray-500 text-xs font-bold uppercase">Pending Orders</p><h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-pending">0</h3></div>
@@ -101,12 +100,10 @@
             </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Recent Orders Preview -->
                 <div class="lg:col-span-2 card">
                     <div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg text-gray-800">Recent Activity</h3><button onclick="switchAdminView('orders')" class="text-green-600 text-sm font-bold hover:underline">View All</button></div>
                     <div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-gray-50 text-gray-500 uppercase text-xs"><tr><th class="p-3">Order</th><th class="p-3">Customer</th><th class="p-3">Total</th><th class="p-3">Status</th></tr></thead><tbody id="dash-orders-body" class="divide-y divide-gray-100"><tr><td colspan="4" class="p-4 text-center text-gray-400">Loading...</td></tr></tbody></table></div>
                 </div>
-                <!-- Traffic Chart Preview -->
                 <div class="card flex flex-col">
                     <h3 class="font-bold text-lg text-gray-800 mb-4">Live Traffic</h3>
                     <div class="flex-grow flex items-center justify-center"><canvas id="trafficChartSmall"></canvas></div>
@@ -182,11 +179,9 @@
 
         // VIEW SWITCHER
         window.switchAdminView = (viewName) => {
-            // Update Title
             const titles = { 'dashboard': 'Dashboard', 'traffic': 'Live Traffic Analysis', 'orders': 'Order Management', 'customers': 'Customer Database', 'sips': 'Gold SIP Portfolio' };
             document.getElementById('page-title').innerText = titles[viewName];
 
-            // Toggle Classes
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             document.getElementById(viewName + '-view').classList.remove('hidden');
             
@@ -225,17 +220,17 @@
                         : `<span class="badge badge-pending">Pending</span>`;
                     
                     const actionBtn = o.status === "Pending"
-                        ? `<button onclick="markDelivered('${id}')" class="text-blue-600 hover:text-blue-800 font-bold text-xs bg-blue-50 px-2 py-1 rounded border border-blue-200">✔ Dispatch</button>`
-                        : `<span class="text-gray-400 text-xs italic">Completed</span>`;
+                        ? `<button onclick="markDelivered('${id}')" class="text-blue-600 hover:text-blue-800 font-bold text-xs bg-blue-50 px-2 py-1 rounded">Dispatch</button>`
+                        : `<span class="text-gray-400 text-xs">Done</span>`;
 
                     const dateStr = o.date && o.date.toDate ? o.date.toDate().toLocaleDateString() : 'N/A';
                     
                     // Add to All Orders Table
-                    allBody.innerHTML += `<tr class="hover:bg-gray-50 border-b border-gray-100"><td class="p-3 text-xs text-gray-500">${dateStr}</td><td class="p-3 font-mono text-xs">#${id.substr(0,4)}</td><td class="p-3 font-bold text-gray-800">${o.userName || 'Guest'}</td><td class="p-3 text-xs text-gray-500 max-w-xs truncate" title="${o.items}">${o.items ? o.items.join(", ") : "Mixed Veggies"}</td><td class="p-3 font-bold text-green-700">₹${o.total}</td><td class="p-3">${statusBadge}</td><td class="p-3">${actionBtn}</td></tr>`;
+                    allBody.innerHTML += `<tr class="hover:bg-gray-50 border-b border-gray-100"><td class="p-3 text-xs text-gray-500">${dateStr}</td><td class="p-3 font-mono text-xs">#${id.substr(0,4)}</td><td class="p-3 font-bold text-gray-800">${o.userName || 'Guest'}</td><td class="p-3 text-xs text-gray-500 max-w-xs truncate" title="${o.items}">${o.items}</td><td class="p-3 font-bold text-green-700">₹${o.total}</td><td class="p-3">${statusBadge}</td><td class="p-3">${actionBtn}</td></tr>`;
                     
                     // Add to Dashboard (Limit 5)
                     if(dashBody.children.length < 5) {
-                        dashBody.innerHTML += `<tr class="border-b border-gray-50"><td class="p-3 font-mono text-xs">#${id.substr(0,4)}</td><td class="p-3 text-sm font-bold text-gray-700">${o.userName || 'Guest'}</td><td class="p-3 font-bold text-green-600">₹${o.total}</td><td class="p-3">${statusBadge}</td></tr>`;
+                        dashBody.innerHTML += `<tr class="border-b border-gray-50"><td class="p-3 font-mono text-xs">#${id.substr(0,4)}</td><td class="p-3 text-sm font-bold text-gray-700">${o.userName}</td><td class="p-3 font-bold text-green-600">₹${o.total}</td><td class="p-3">${statusBadge}</td></tr>`;
                     }
                 });
 
@@ -257,7 +252,7 @@
                 });
             });
 
-            // D. SIPs (Collection Group Query)
+            // D. SIPs
             try {
                 onSnapshot(query(collectionGroup(db, 'sips'), orderBy('createdAt', 'desc')), (snapshot) => {
                     const tbody = document.getElementById('all-sips-body');
@@ -265,7 +260,6 @@
                     snapshot.forEach(doc => {
                         const s = doc.data();
                         const date = s.createdAt?.toDate ? s.createdAt.toDate().toLocaleDateString() : 'N/A';
-                        // Get parent user ID from ref path: users/UID/sips/SIPID
                         const uid = doc.ref.parent.parent.id; 
                         tbody.innerHTML += `<tr class="hover:bg-gray-50 border-b border-gray-100"><td class="p-3 font-mono text-xs">#${doc.id.substr(0,5)}</td><td class="p-3 text-xs text-gray-500 font-mono">${uid.substr(0,8)}...</td><td class="p-3 font-bold text-gray-900">₹${s.amount}</td><td class="p-3"><span class="badge badge-sip">${s.status}</span></td><td class="p-3 text-xs text-gray-500">${date}</td></tr>`;
                     });
@@ -282,7 +276,11 @@
         }
 
         window.markDelivered = async (id) => { if(confirm("Dispatch?")) await updateDoc(doc(db, "orders", id), { status: "Delivered" }); };
-        window.logout = async () => { if(auth) await signOut(auth); window.location.href = "index.html"; }
+        
+        window.logout = async () => {
+            if(auth) await signOut(auth);
+            window.location.href = "index.html"; 
+        }
 
         // Chart Setup
         const chartOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { display: false } }, animation: { duration: 0 } };
