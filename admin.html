@@ -154,9 +154,9 @@
         import { getAuth, onAuthStateChanged, signInAnonymously, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, collectionGroup } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
-        // 1. FIREBASE CONFIG (PASTE YOUR KEYS HERE)
+        // 1. FIREBASE CONFIG
         const firebaseConfig = {
-            apiKey: "AIzaSyCn97KMDw04cR7BI12WIrg9-5PRiJ8vjMo",
+            apiKey: "AIzaSyBAhdK1ZXdCjWUXK_HG9JvJ2PzFRijYPDc",
             authDomain: "projectgreengold-79577.firebaseapp.com",
             projectId: "projectgreengold-79577",
             storageBucket: "projectgreengold-79577.firebasestorage.app",
@@ -258,7 +258,6 @@
             });
 
             // D. SIPs (Collection Group Query)
-            // Note: This requires an index in Firestore. If it fails, check console for index creation link.
             try {
                 onSnapshot(query(collectionGroup(db, 'sips'), orderBy('createdAt', 'desc')), (snapshot) => {
                     const tbody = document.getElementById('all-sips-body');
@@ -283,7 +282,12 @@
         }
 
         window.markDelivered = async (id) => { if(confirm("Dispatch?")) await updateDoc(doc(db, "orders", id), { status: "Delivered" }); };
-        window.logout = async () => { if(auth) await signOut(auth); window.location.href = "index.html"; }
+        
+        window.logout = async () => {
+            if(auth) await signOut(auth);
+            // Updated safer redirect logic
+            window.location.href = "./index.html"; 
+        }
 
         // Chart Setup
         const chartOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { display: false } }, animation: { duration: 0 } };
