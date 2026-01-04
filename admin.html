@@ -43,7 +43,9 @@
     <!-- Permission Modal (Hidden by default) -->
     <div id="permission-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 text-center">
-            <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl"><i class="fas fa-lock"></i></div>
+            <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                <i class="fas fa-lock"></i>
+            </div>
             <h2 class="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
             <p class="text-gray-600 mb-6 text-sm">Please enable <strong>Anonymous Auth</strong> in Firebase Console > Authentication.</p>
             <button onclick="location.reload()" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition">Retry</button>
@@ -53,7 +55,9 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="p-6 flex items-center gap-3 text-white mb-6">
-            <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center"><i class="fas fa-leaf"></i></div>
+            <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+                <i class="fas fa-leaf"></i>
+            </div>
             <span class="font-bold text-xl tracking-wide">GreenGold</span>
         </div>
 
@@ -85,61 +89,163 @@
                 <p class="text-sm text-gray-500">Real-time business intelligence</p>
             </div>
             <div class="flex items-center gap-4">
-                <div class="live-badge"><div class="pulse"></div> Live System</div>
-                <div class="w-10 h-10 rounded-full bg-gray-200 border-2 border-green-500 overflow-hidden"><img src="https://ui-avatars.com/api/?name=Admin&background=10b981&color=fff" alt="Admin"></div>
+                <div class="live-badge">
+                    <div class="pulse"></div> Live System
+                </div>
+                <div class="w-10 h-10 rounded-full bg-gray-200 border-2 border-green-500 overflow-hidden">
+                    <img src="https://ui-avatars.com/api/?name=Admin&background=10b981&color=fff" alt="Admin">
+                </div>
             </div>
         </header>
 
         <!-- VIEW 1: DASHBOARD (Summary) -->
         <div id="dashboard-view" class="view-section">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="card border-l-4 border-green-500"><p class="text-gray-500 text-xs font-bold uppercase">Total Revenue</p><h3 class="text-2xl font-bold text-gray-800 mt-1">₹<span id="stat-revenue">0</span></h3></div>
-                <div class="card border-l-4 border-yellow-500"><p class="text-gray-500 text-xs font-bold uppercase">Pending Orders</p><h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-pending">0</h3></div>
-                <div class="card border-l-4 border-blue-500"><p class="text-gray-500 text-xs font-bold uppercase">Active Customers</p><h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-users">0</h3></div>
-                <div class="card border-l-4 border-purple-500 relative overflow-hidden"><p class="text-gray-500 text-xs font-bold uppercase">Live Site Visits</p><h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-visits">0</h3><i class="fas fa-eye absolute right-4 bottom-4 text-4xl text-purple-100 opacity-20"></i></div>
+                <div class="card border-l-4 border-green-500">
+                    <p class="text-gray-500 text-xs font-bold uppercase">Total Revenue</p>
+                    <h3 class="text-2xl font-bold text-gray-800 mt-1">₹<span id="stat-revenue">0</span></h3>
+                </div>
+                <div class="card border-l-4 border-yellow-500">
+                    <p class="text-gray-500 text-xs font-bold uppercase">Pending Orders</p>
+                    <h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-pending">0</h3>
+                </div>
+                <div class="card border-l-4 border-blue-500">
+                    <p class="text-gray-500 text-xs font-bold uppercase">Active Customers</p>
+                    <h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-users">0</h3>
+                </div>
+                <div class="card border-l-4 border-purple-500 relative overflow-hidden">
+                    <p class="text-gray-500 text-xs font-bold uppercase">Live Site Visits</p>
+                    <h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-visits">0</h3>
+                    <i class="fas fa-eye absolute right-4 bottom-4 text-4xl text-purple-100 opacity-20"></i>
+                </div>
             </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Recent Orders Preview -->
                 <div class="lg:col-span-2 card">
-                    <div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg text-gray-800">Recent Activity</h3><button onclick="switchAdminView('orders')" class="text-green-600 text-sm font-bold hover:underline">View All</button></div>
-                    <div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-gray-50 text-gray-500 uppercase text-xs"><tr><th class="p-3">Order</th><th class="p-3">Customer</th><th class="p-3">Total</th><th class="p-3">Status</th></tr></thead><tbody id="dash-orders-body" class="divide-y divide-gray-100"><tr><td colspan="4" class="p-4 text-center text-gray-400">Loading...</td></tr></tbody></table></div>
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-lg text-gray-800">Recent Activity</h3>
+                        <button onclick="switchAdminView('orders')" class="text-green-600 text-sm font-bold hover:underline">View All</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+                                <tr>
+                                    <th class="p-3">Order</th>
+                                    <th class="p-3">Customer</th>
+                                    <th class="p-3">Total</th>
+                                    <th class="p-3">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dash-orders-body" class="divide-y divide-gray-100">
+                                <tr><td colspan="4" class="p-4 text-center text-gray-400">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+                <!-- Traffic Chart Preview -->
                 <div class="card flex flex-col">
                     <h3 class="font-bold text-lg text-gray-800 mb-4">Live Traffic</h3>
-                    <div class="flex-grow flex items-center justify-center"><canvas id="trafficChartSmall"></canvas></div>
+                    <div class="flex-grow flex items-center justify-center">
+                        <canvas id="trafficChartSmall"></canvas>
+                    </div>
+                    <p class="text-xs text-center text-gray-400 mt-2">Updates every 3s</p>
                 </div>
             </div>
         </div>
 
         <!-- VIEW 2: LIVE TRAFFIC -->
         <div id="traffic-view" class="view-section hidden">
-            <div class="card h-[500px]">
+            <div class="card h-[500px] flex flex-col">
                 <h3 class="font-bold text-lg text-gray-800 mb-4">Real-Time User Traffic</h3>
-                <canvas id="trafficChartBig"></canvas>
+                <div class="flex-grow">
+                    <canvas id="trafficChartBig"></canvas>
+                </div>
             </div>
         </div>
 
         <!-- VIEW 3: ALL ORDERS -->
         <div id="orders-view" class="view-section hidden">
             <div class="card">
-                <div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg text-gray-800">All Orders</h3></div>
-                <div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-gray-50 text-gray-500 uppercase text-xs"><tr><th class="p-3">Date</th><th class="p-3">ID</th><th class="p-3">Customer</th><th class="p-3">Items</th><th class="p-3">Total</th><th class="p-3">Status</th><th class="p-3">Action</th></tr></thead><tbody id="all-orders-body" class="divide-y divide-gray-100"></tbody></table></div>
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-bold text-lg text-gray-800">All Orders</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+                            <tr>
+                                <th class="p-3">Date</th>
+                                <th class="p-3">ID</th>
+                                <th class="p-3">Customer</th>
+                                <th class="p-3">Items</th>
+                                <th class="p-3">Amount</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="all-orders-body" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <!-- VIEW 4: CUSTOMERS -->
         <div id="customers-view" class="view-section hidden">
             <div class="card">
-                <div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg text-gray-800">Registered Customers</h3></div>
-                <div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-gray-50 text-gray-500 uppercase text-xs"><tr><th class="p-3">Name</th><th class="p-3">Email</th><th class="p-3">Joined Date</th><th class="p-3">Gold Balance (g)</th></tr></thead><tbody id="all-users-body" class="divide-y divide-gray-100"></tbody></table></div>
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-bold text-lg text-gray-800">Registered Customers</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+                            <tr>
+                                <th class="p-3">Name</th>
+                                <th class="p-3">Email</th>
+                                <th class="p-3">Joined Date</th>
+                                <th class="p-3">Gold Balance (g)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="all-users-body" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <!-- VIEW 5: GOLD SIPs -->
         <div id="sips-view" class="view-section hidden">
+            <!-- Stats Summary for SIPs -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="card bg-yellow-50 border border-yellow-100">
+                    <p class="text-yellow-700 text-xs font-bold uppercase">Total Gold Distributed</p>
+                    <h3 class="text-3xl font-bold text-yellow-800 mt-1" id="stat-total-gold">0.000g</h3>
+                    <p class="text-xs text-yellow-600 mt-1">Across all users</p>
+                </div>
+                <div class="card bg-blue-50 border border-blue-100">
+                    <p class="text-blue-700 text-xs font-bold uppercase">Monthly SIP Value</p>
+                    <h3 class="text-3xl font-bold text-blue-800 mt-1" id="stat-total-sip-value">₹0</h3>
+                    <p class="text-xs text-blue-600 mt-1">Recurring Revenue</p>
+                </div>
+            </div>
+
             <div class="card">
-                <div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg text-gray-800">Active Gold SIPs</h3></div>
-                <div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-gray-50 text-gray-500 uppercase text-xs"><tr><th class="p-3">SIP ID</th><th class="p-3">User ID</th><th class="p-3">Amount</th><th class="p-3">Status</th><th class="p-3">Start Date</th></tr></thead><tbody id="all-sips-body" class="divide-y divide-gray-100"></tbody></table></div>
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-bold text-lg text-gray-800">Active Gold SIPs</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+                            <tr>
+                                <th class="p-3">SIP ID</th>
+                                <th class="p-3">User ID</th>
+                                <th class="p-3">Amount (₹)</th>
+                                <th class="p-3">Est. Gold (mg)</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3">Start Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="all-sips-body" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -151,7 +257,7 @@
         import { getAuth, onAuthStateChanged, signInAnonymously, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, collectionGroup } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
-        // 1. FIREBASE CONFIG
+        // 1. FIREBASE CONFIG (Using your provided keys)
         const firebaseConfig = {
             apiKey: "AIzaSyCn97KMDw04cR7BI12WIrg9-5PRiJ8vjMo",
             authDomain: "projectgreengold-79577.firebaseapp.com",
@@ -193,11 +299,13 @@
             // A. STATS (Visits)
             try {
                 onSnapshot(doc(db, "stats", "visits"), (doc) => {
+                    let count = 0;
                     if(doc.exists()) {
-                        const count = doc.data().count;
-                        document.getElementById('stat-visits').innerText = count;
-                        updateChart(count);
+                        count = doc.data().count;
                     }
+                    document.getElementById('stat-visits').innerText = count;
+                    // Chart update is handled by the loop below to ensure animation
+                    currentVisitCount = count;
                 }, handlePermissionError);
             } catch(e) {}
 
@@ -220,13 +328,13 @@
                         : `<span class="badge badge-pending">Pending</span>`;
                     
                     const actionBtn = o.status === "Pending"
-                        ? `<button onclick="markDelivered('${id}')" class="text-blue-600 hover:text-blue-800 font-bold text-xs bg-blue-50 px-2 py-1 rounded">Dispatch</button>`
-                        : `<span class="text-gray-400 text-xs">Done</span>`;
+                        ? `<button onclick="markDelivered('${id}')" class="text-blue-600 hover:text-blue-800 font-bold text-xs bg-blue-50 px-2 py-1 rounded border border-blue-200">✔ Dispatch</button>`
+                        : `<span class="text-gray-400 text-xs italic">Completed</span>`;
 
                     const dateStr = o.date && o.date.toDate ? o.date.toDate().toLocaleDateString() : 'N/A';
                     
                     // Add to All Orders Table
-                    allBody.innerHTML += `<tr class="hover:bg-gray-50 border-b border-gray-100"><td class="p-3 text-xs text-gray-500">${dateStr}</td><td class="p-3 font-mono text-xs">#${id.substr(0,4)}</td><td class="p-3 font-bold text-gray-800">${o.userName || 'Guest'}</td><td class="p-3 text-xs text-gray-500 max-w-xs truncate" title="${o.items}">${o.items}</td><td class="p-3 font-bold text-green-700">₹${o.total}</td><td class="p-3">${statusBadge}</td><td class="p-3">${actionBtn}</td></tr>`;
+                    allBody.innerHTML += `<tr class="hover:bg-gray-50 border-b border-gray-100"><td class="p-3 text-xs text-gray-500">${dateStr}</td><td class="p-3 font-mono text-xs">#${id.substr(0,4)}</td><td class="p-3 font-bold text-gray-800">${o.userName || 'Guest'}</td><td class="p-3 text-xs text-gray-500 max-w-xs truncate" title="${o.items}">${o.items ? o.items.join(", ") : "Mixed Veggies"}</td><td class="p-3 font-bold text-green-700">₹${o.total}</td><td class="p-3">${statusBadge}</td><td class="p-3">${actionBtn}</td></tr>`;
                     
                     // Add to Dashboard (Limit 5)
                     if(dashBody.children.length < 5) {
@@ -237,35 +345,59 @@
                 document.getElementById('stat-pending').innerText = pendingCount;
                 document.getElementById('stat-revenue').innerText = totalRev.toLocaleString();
                 const badge = document.getElementById('pending-badge');
-                if(badge) { badge.innerText = pendingCount; badge.classList.toggle('hidden', pendingCount === 0); }
+                if(badge) {
+                    badge.innerText = pendingCount;
+                    if(pendingCount > 0) badge.classList.remove('hidden');
+                    else badge.classList.add('hidden');
+                }
             }, handlePermissionError);
 
-            // C. CUSTOMERS
+            // C. CUSTOMERS (And Total Gold Calc)
             onSnapshot(collection(db, "users"), (snapshot) => {
                 document.getElementById('stat-users').innerText = snapshot.size;
                 const tbody = document.getElementById('all-users-body');
                 tbody.innerHTML = "";
-                snapshot.forEach(doc => {
-                    const u = doc.data();
-                    const joinDate = u.joinedAt?.toDate ? u.joinedAt.toDate().toLocaleDateString() : 'N/A';
-                    tbody.innerHTML += `<tr class="hover:bg-gray-50 border-b border-gray-100"><td class="p-3 font-bold text-gray-700">${u.name || 'Unknown'}</td><td class="p-3 text-gray-500 text-xs">${u.email || 'No Email'}</td><td class="p-3 text-gray-500 text-xs">${joinDate}</td><td class="p-3 font-bold text-yellow-600">${(u.goldBalance || 0).toFixed(4)}g</td></tr>`;
-                });
-            });
+                let totalGold = 0;
 
-            // D. SIPs
+                snapshot.forEach(docSnap => {
+                    const u = docSnap.data();
+                    const gold = u.goldBalance || 0;
+                    totalGold += gold;
+                    let joinDate = "N/A";
+                    if(u.joinedAt && u.joinedAt.toDate) {
+                         joinDate = u.joinedAt.toDate().toLocaleDateString();
+                    }
+                    
+                    tbody.innerHTML += `<tr class="hover:bg-gray-50 border-b border-gray-100"><td class="p-3 font-bold text-gray-700">${u.name || 'Unknown'}</td><td class="p-3 text-gray-500 text-xs">${u.email || 'No Email'}</td><td class="p-3 text-gray-500 text-xs">${joinDate}</td><td class="p-3 font-bold text-yellow-600">${gold.toFixed(4)}g</td></tr>`;
+                });
+                
+                document.getElementById('stat-total-gold').innerText = totalGold.toFixed(3) + "g";
+            }, (e) => {});
+
+            // D. SIPs (Collection Group Query)
             try {
                 onSnapshot(query(collectionGroup(db, 'sips'), orderBy('createdAt', 'desc')), (snapshot) => {
                     const tbody = document.getElementById('all-sips-body');
                     tbody.innerHTML = "";
+                    let totalSipValue = 0;
+                    
                     snapshot.forEach(doc => {
                         const s = doc.data();
+                        const amount = parseInt(s.amount) || 0;
+                        if(s.status === 'ACTIVE') totalSipValue += amount;
+                        
                         const date = s.createdAt?.toDate ? s.createdAt.toDate().toLocaleDateString() : 'N/A';
                         const uid = doc.ref.parent.parent.id; 
-                        tbody.innerHTML += `<tr class="hover:bg-gray-50 border-b border-gray-100"><td class="p-3 font-mono text-xs">#${doc.id.substr(0,5)}</td><td class="p-3 text-xs text-gray-500 font-mono">${uid.substr(0,8)}...</td><td class="p-3 font-bold text-gray-900">₹${s.amount}</td><td class="p-3"><span class="badge badge-sip">${s.status}</span></td><td class="p-3 text-xs text-gray-500">${date}</td></tr>`;
+                        // Estimate gold mg based on 7250 rate
+                        const estGoldMg = ((amount / 7250) * 1000).toFixed(0);
+
+                        tbody.innerHTML += `<tr class="hover:bg-gray-50 border-b border-gray-100"><td class="p-3 font-mono text-xs">#${doc.id.substr(0,5)}</td><td class="p-3 text-xs text-gray-500 font-mono">${uid.substr(0,8)}...</td><td class="p-3 font-bold text-gray-900">₹${s.amount}</td><td class="p-3 text-yellow-700 font-bold text-xs">${estGoldMg} mg</td><td class="p-3"><span class="badge badge-sip">${s.status}</span></td><td class="p-3 text-xs text-gray-500">${date}</td></tr>`;
                     });
+                    
+                    document.getElementById('stat-total-sip-value').innerText = "₹" + totalSipValue.toLocaleString();
                 }, (e) => { 
                     console.log("SIP Query Error (likely missing index):", e); 
-                    document.getElementById('all-sips-body').innerHTML = `<tr><td colspan="5" class="p-4 text-center text-yellow-600 text-xs">Index required for global SIP view. Check Console.</td></tr>`;
+                    document.getElementById('all-sips-body').innerHTML = `<tr><td colspan="6" class="p-4 text-center text-yellow-600 text-xs">Firestore Index Required. Check Console for Link.</td></tr>`;
                 });
             } catch(e) {}
         }
@@ -284,21 +416,31 @@
 
         // Chart Setup
         const chartOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { display: false } }, animation: { duration: 0 } };
-        const chartData = { labels: Array(10).fill(''), datasets: [{ label: 'Users', data: Array(10).fill(0), borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', borderWidth: 2, fill: true, tension: 0.4 }] };
+        const chartData = { labels: Array(15).fill(''), datasets: [{ label: 'Users', data: Array(15).fill(0), borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', borderWidth: 2, fill: true, tension: 0.4 }] };
         
         let chart1, chart2;
+        let currentVisitCount = 0;
+
         if(document.getElementById('trafficChartSmall')) chart1 = new Chart(document.getElementById('trafficChartSmall').getContext('2d'), { type: 'line', data: chartData, options: chartOptions });
         if(document.getElementById('trafficChartBig')) chart2 = new Chart(document.getElementById('trafficChartBig').getContext('2d'), { type: 'line', data: chartData, options: chartOptions });
 
-        function updateChart(val) {
+        // Chart "Heartbeat" Loop
+        setInterval(() => {
+            // Add slight jitter to simulate live activity even if count is static
+            let displayVal = currentVisitCount;
+            if(displayVal > 0) {
+                 const jitter = Math.random() > 0.7 ? (Math.random() > 0.5 ? 1 : -1) : 0;
+                 displayVal = Math.max(0, currentVisitCount + jitter);
+            }
+
             [chart1, chart2].forEach(c => {
                 if(c) {
-                    c.data.datasets[0].data.push(val);
+                    c.data.datasets[0].data.push(displayVal);
                     c.data.datasets[0].data.shift();
                     c.update();
                 }
             });
-        }
+        }, 3000);
     </script>
 </body>
 </html>
