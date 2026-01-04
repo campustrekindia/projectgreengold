@@ -11,7 +11,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap');
         body { font-family: 'Montserrat', sans-serif; background-color: #f3f4f6; }
         
-        /* Layout */
+        /* Sidebar & Layout */
         .sidebar { width: 260px; background: #111827; height: 100vh; position: fixed; left: 0; top: 0; color: #9ca3af; transition: all 0.3s; z-index: 50; overflow-y: auto; }
         .nav-item { padding: 12px 20px; margin: 4px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s; }
         .nav-item:hover, .nav-item.active { background: #1f2937; color: #10b981; }
@@ -80,7 +80,7 @@
         </div>
     </div>
 
-    <!-- Main Content -->
+    <!-- Main Content Area -->
     <div class="main-content">
         <!-- Common Header -->
         <header class="flex justify-between items-center mb-8">
@@ -257,7 +257,7 @@
         import { getAuth, onAuthStateChanged, signInAnonymously, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, collectionGroup } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
-        // 1. FIREBASE CONFIG (Using your provided keys)
+        // 1. FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyCn97KMDw04cR7BI12WIrg9-5PRiJ8vjMo",
             authDomain: "projectgreengold-79577.firebaseapp.com",
@@ -299,13 +299,11 @@
             // A. STATS (Visits)
             try {
                 onSnapshot(doc(db, "stats", "visits"), (doc) => {
-                    let count = 0;
                     if(doc.exists()) {
-                        count = doc.data().count;
+                        const count = doc.data().count;
+                        document.getElementById('stat-visits').innerText = count;
+                        updateChart(count);
                     }
-                    document.getElementById('stat-visits').innerText = count;
-                    // Chart update is handled by the loop below to ensure animation
-                    currentVisitCount = count;
                 }, handlePermissionError);
             } catch(e) {}
 
@@ -352,7 +350,7 @@
                 }
             }, handlePermissionError);
 
-            // C. CUSTOMERS (And Total Gold Calc)
+            // C. CUSTOMERS
             onSnapshot(collection(db, "users"), (snapshot) => {
                 document.getElementById('stat-users').innerText = snapshot.size;
                 const tbody = document.getElementById('all-users-body');
@@ -374,14 +372,22 @@
                 document.getElementById('stat-total-gold').innerText = totalGold.toFixed(3) + "g";
             }, (e) => {});
 
-            // D. SIPs (Collection Group Query)
+            // D. SIPs (Collection Group Query - FIXED: Client-Side Sorting to avoid Index Errors)
             try {
-                onSnapshot(query(collectionGroup(db, 'sips'), orderBy('createdAt', 'desc')), (snapshot) => {
+                // We use collectionGroup simply to get all sips, then sort locally to avoid "Missing Index" error
+                onSnapshot(collectionGroup(db, 'sips'), (snapshot) => {
                     const tbody = document.getElementById('all-sips-body');
                     tbody.innerHTML = "";
                     let totalSipValue = 0;
                     
-                    snapshot.forEach(doc => {
+                    // Client-side sort by date descending
+                    const sortedDocs = snapshot.docs.sort((a,b) => {
+                         const da = a.data().createdAt?.toMillis() || 0;
+                         const db = b.data().createdAt?.toMillis() || 0;
+                         return db - da;
+                    });
+
+                    sortedDocs.forEach(doc => {
                         const s = doc.data();
                         const amount = parseInt(s.amount) || 0;
                         if(s.status === 'ACTIVE') totalSipValue += amount;
@@ -396,8 +402,8 @@
                     
                     document.getElementById('stat-total-sip-value').innerText = "₹" + totalSipValue.toLocaleString();
                 }, (e) => { 
-                    console.log("SIP Query Error (likely missing index):", e); 
-                    document.getElementById('all-sips-body').innerHTML = `<tr><td colspan="6" class="p-4 text-center text-yellow-600 text-xs">Firestore Index Required. Check Console for Link.</td></tr>`;
+                    console.log("SIP Query Error:", e); 
+                    document.getElementById('all-sips-body').innerHTML = `<tr><td colspan="6" class="p-4 text-center text-red-500 text-xs">Error loading SIPs. Check Console.</td></tr>`;
                 });
             } catch(e) {}
         }
@@ -411,36 +417,26 @@
         
         window.logout = async () => {
             if(auth) await signOut(auth);
-            window.location.href = "index.html"; 
+            window.location.href = "./index.html"; 
         }
 
         // Chart Setup
         const chartOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { display: false } }, animation: { duration: 0 } };
-        const chartData = { labels: Array(15).fill(''), datasets: [{ label: 'Users', data: Array(15).fill(0), borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', borderWidth: 2, fill: true, tension: 0.4 }] };
+        const chartData = { labels: Array(10).fill(''), datasets: [{ label: 'Users', data: Array(10).fill(0), borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', borderWidth: 2, fill: true, tension: 0.4 }] };
         
         let chart1, chart2;
-        let currentVisitCount = 0;
-
         if(document.getElementById('trafficChartSmall')) chart1 = new Chart(document.getElementById('trafficChartSmall').getContext('2d'), { type: 'line', data: chartData, options: chartOptions });
         if(document.getElementById('trafficChartBig')) chart2 = new Chart(document.getElementById('trafficChartBig').getContext('2d'), { type: 'line', data: chartData, options: chartOptions });
 
-        // Chart "Heartbeat" Loop
-        setInterval(() => {
-            // Add slight jitter to simulate live activity even if count is static
-            let displayVal = currentVisitCount;
-            if(displayVal > 0) {
-                 const jitter = Math.random() > 0.7 ? (Math.random() > 0.5 ? 1 : -1) : 0;
-                 displayVal = Math.max(0, currentVisitCount + jitter);
-            }
-
+        function updateChart(val) {
             [chart1, chart2].forEach(c => {
                 if(c) {
-                    c.data.datasets[0].data.push(displayVal);
+                    c.data.datasets[0].data.push(val);
                     c.data.datasets[0].data.shift();
                     c.update();
                 }
             });
-        }, 3000);
+        }
     </script>
 </body>
 </html>
