@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreenGold | Admin Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap');
+        body { font-family: 'Montserrat', sans-serif; background-color: #f3f4f6; }
+        
+        /* Sidebar & Layout */
+        .sidebar { width: 260px; background: #111827; height: 100vh; position: fixed; left: 0; top: 0; color: #9ca3af; transition: all 0.3s; z-index: 50; overflow-y: auto; }
+        .nav-item { padding: 12px 20px; margin: 4px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s; }
+        .nav-item:hover, .nav-item.active { background: #1f2937; color: #10b981; }
+        .main-content { margin-left: 260px; padding: 2rem; min-height: 100vh; }
+
+        /* Views Utility */
+        .view-section { display: block; animation: fadeIn 0.3s ease-out; }
+        .view-section.hidden { display: none; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Components */
+        .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .live-badge { background: #dcfce7; color: #15803d; padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .pulse { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 0 rgba(34, 197, 94, 0.4); animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
+        
+        /* Badges */
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .badge-pending { background: #fef3c7; color: #d97706; }
+        .badge-delivered { background: #dcfce7; color: #166534; }
+        .badge-sip { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
+        
+        /* Modal */
+        #permission-modal { background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); }
+    </style>
+</head>
+<body>
+
+    <!-- Permission Modal -->
+    <div id="permission-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 text-center">
+            <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl"><i class="fas fa-lock"></i></div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
+            <p class="text-gray-600 mb-6 text-sm">Please enable <strong>Anonymous Auth</strong> in Firebase Console > Authentication.</p>
+            <button onclick="location.reload()" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition">Retry</button>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="p-6 flex items-center gap-3 text-white mb-6">
+            <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center"><i class="fas fa-leaf"></i></div>
+            <span class="font-bold text-xl tracking-wide">GreenGold</span>
+        </div>
+
+        <div class="px-4 mb-2 text-xs font-bold uppercase tracking-wider text-gray-500">Overview</div>
+        <div onclick="switchAdminView('dashboard')" class="nav-item active" id="nav-dashboard"><i class="fas fa-chart-pie w-5"></i> Dashboard</div>
+        <div onclick="switchAdminView('traffic')" class="nav-item" id="nav-traffic"><i class="fas fa-globe w-5"></i> Live Traffic</div>
+
+        <div class="px-4 mb-2 mt-6 text-xs font-bold uppercase tracking-wider text-gray-500">Management</div>
+        <div onclick="switchAdminView('orders')" class="nav-item" id="nav-orders">
+            <i class="fas fa-shopping-basket w-5"></i> Orders 
+            <span id="pending-badge" class="ml-auto bg-red-500 text-white text-[10px] px-2 rounded-full hidden">0</span>
+        </div>
+        <div onclick="switchAdminView('customers')" class="nav-item" id="nav-customers"><i class="fas fa-users w-5"></i> Customers</div>
+        <div onclick="switchAdminView('sips')" class="nav-item" id="nav-sips"><i class="fas fa-coins w-5"></i> Gold SIPs</div>
+
+        <div class="absolute bottom-0 w-full p-4">
+            <button onclick="logout()" class="w-full bg-gray-800 text-gray-400 py-3 rounded-lg hover:text-white hover:bg-red-900/50 transition flex items-center justify-center gap-2 font-semibold">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Common Header -->
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800" id="page-title">Dashboard</h1>
+                <p class="text-sm text-gray-500">Real-time business intelligence</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="live-badge"><div class="pulse"></div> Live System</div>
+                <div class="w-10 h-10 rounded-full bg-gray-200 border-2 border-green-500 overflow-hidden"><img src="https://ui-avatars.com/api/?name=Admin&background=10b981&color=fff" alt="Admin"></div>
+            </div>
+        </header>
+
+        <!-- VIEW 1: DASHBOARD (Summary) -->
+        <div id="dashboard-view" class="view-section">
+            <!-- Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="card border-l-4 border-green-500"><p class="text-gray-500 text-xs font-bold uppercase">Total Revenue</p><h3 class="text-2xl font-bold text-gray-800 mt-1">₹<span id="stat-revenue">0</span></h3></div>
+                <div class="card border-l-4 border-yellow-500"><p class="text-gray-500 text-xs font-bold uppercase">Pending Orders</p><h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-pending">0</h3></div>
+                <div class="card border-l-4 border-blue-500"><p class="text-gray-500 text-xs font-bold uppercase">Active Customers</p><h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-users">0</h3></div>
+                <div class="card border-l-4 border-purple-500 relative overflow-hidden"><p class="text-gray-500 text-xs font-bold uppercase">Live Site Visits</p><h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-visits">0</h3><i class="fas fa-eye absolute right-4 bottom-4 text-4xl text-purple-100 opacity-20"></i></div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Recent Orders Preview -->
+                <div class="lg:col-span-2 card">
+                    <div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg text-gray-800">Recent Activity</h3><button onclick="switchAdminView('orders')" class="text-green-600 text-sm font-bold hover:underline">View All</button></div>
+                    <div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-gray-50 text-gray-500 uppercase text-xs"><tr><th class="p-3">Order</th><th class="p-3">Customer</th><th class="p-3">Total</th><th class="p-3">Status</th></tr></thead><tbody id="dash-orders-body" class="divide-y divide-gray-100"><tr><td colspan="4" class="p-4 text-center text-gray-400">Loading...</td></tr></tbody></table></div>
+                </div>
+                <!-- Traffic Chart Preview -->
+                <div class="card flex flex-col">
+                    <h3 class="font-bold text-lg text-gray-800 mb-4">Live Traffic</h3>
+                    <div class="flex-grow flex items-center justify-center"><canvas id="trafficChartSmall"></canvas></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 2: LIVE TRAFFIC -->
+        <div id="traffic-view" class="view-section hidden">
+            <div class="card h-[500px]">
+                <h3 class="font-bold text-lg text-gray-800 mb-4">Real-Time User Traffic</h3>
+                <canvas id="trafficChartBig"></canvas>
+            </div>
+        </div>
+
+        <!-- VIEW 3: ALL ORDERS -->
+        <div id="orders-view" class="view-section hidden">
+            <div class="card">
+                <div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg text-gray-800">All Orders</h3></div>
+                <div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-gray-50 text-gray-500 uppercase text-xs"><tr><th class="p-3">Date</th><th class="p-3">ID</th><th class="p-3">Customer</th><th class="p-3">Items</th><th class="p-3">Total</th><th class="p-3">Status</th><th class="p-3">Action</th></tr></thead><tbody id="all-orders-body" class="divide-y divide-gray-100"></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- VIEW 4: CUSTOMERS -->
+        <div id="customers-view" class="view-section hidden">
+            <div class="card">
+                <div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg text-gray-800">Registered Customers</h3></div>
+                <div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-gray-50 text-gray-500 uppercase text-xs"><tr><th class="p-3">Name</th><th class="p-3">Email</th><th class="p-3">Joined Date</th><th class="p-3">Gold Balance (g)</th></tr></thead><tbody id="all-users-body" class="divide-y divide-gray-100"></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- VIEW 5: GOLD SIPs -->
+        <div id="sips-view" class="view-section hidden">
+            <div class="card">
+                <div class="flex justify-between items-center mb-6"><h3 class="font-bold text-lg text-gray-800">Active Gold SIPs</h3></div>
+                <div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-gray-50 text-gray-500 uppercase text-xs"><tr><th class="p-3">SIP ID</th><th class="p-3">User ID</th><th class="p-3">Amount</th><th class="p-3">Status</th><th class="p-3">Start Date</th></tr></thead><tbody id="all-sips-body" class="divide-y divide-gray-100"></tbody></table></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInAnonymously, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, collectionGroup } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+
+        // 1. FIREBASE CONFIG (PASTE YOUR KEYS HERE)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCn97KMDw04cR7BI12WIrg9-5PRiJ8vjMo",
+            authDomain: "projectgreengold-79577.firebaseapp.com",
+            projectId: "projectgreengold-79577",
+            storageBucket: "projectgreengold-79577.firebasestorage.app",
+            messagingSenderId: "143016682488",
+            appId: "1:143016682488:web:c97e001d782498ea5bac0d",
+            measurementId: "G-FDD32RYNGQ"
+        };
+
+        let app, auth, db;
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch(e) { console.error("Firebase Error", e); }
+
+        // 2. DASHBOARD LOGIC
+        if (auth && db) {
+            onAuthStateChanged(auth, (user) => {
+                if (user) { initListeners(db); } 
+                else { signInAnonymously(auth).catch((error) => { if(error.code === 'auth/operation-not-allowed') document.getElementById('permission-modal').classList.remove('hidden'); }); }
+            });
+        }
+
+        // VIEW SWITCHER
+        window.switchAdminView = (viewName) => {
+            // Update Title
+            const titles = { 'dashboard': 'Dashboard', 'traffic': 'Live Traffic Analysis', 'orders': 'Order Management', 'customers': 'Customer Database', 'sips': 'Gold SIP Portfolio' };
+            document.getElementById('page-title').innerText = titles[viewName];
+
+            // Toggle Classes
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(viewName + '-view').classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('nav-' + viewName).classList.add('active');
+        };
+
+        function initListeners(db) {
+            // A. STATS (Visits)
+            try {
+                onSnapshot(doc(db, "stats", "visits"), (doc) => {
+                    if(doc.exists()) {
+                        const count = doc.data().count;
+                        document.getElementById('stat-visits').innerText = count;
+                        updateChart(count);
+                    }
+                }, handlePermissionError);
+            } catch(e) {}
+
+            // B. ORDERS
+            onSnapshot(query(collection(db, "orders"), orderBy("date", "desc")), (snapshot) => {
+                const dashBody = document.getElementById('dash-orders-body');
+                const allBody = document.getElementById('all-orders-body');
+                let pendingCount = 0; let totalRev = 0;
+                
+                dashBody.innerHTML = ""; allBody.innerHTML = "";
+
+                snapshot.forEach(docSnap => {
+                    const o = docSnap.data();
+                    const id = docSnap.id;
+                    if(o.status === "Pending") pendingCount++;
+                    if(o.status === "Delivered") totalRev += (o.total || 0);
+
+                    const statusBadge = o.status === "Delivered" 
+                        ? `<span class="badge badge-delivered">Delivered</span>` 
+                        : `<span class="badge badge-pending">Pending</span>`;
+                    
+                    const actionBtn = o.status === "Pending"
+                        ? `<button onclick="markDelivered('${id}')" class="text-blue-600 hover:text-blue-800 font-bold text-xs bg-blue-50 px-2 py-1 rounded">Dispatch</button>`
+                        : `<span class="text-gray-400 text-xs">Done</span>`;
+
+                    const dateStr = o.date && o.date.toDate ? o.date.toDate().toLocaleDateString() : 'N/A';
+                    
+                    // Add to All Orders Table
+                    allBody.innerHTML += `<tr class="hover:bg-gray-50 border-b border-gray-100"><td class="p-3 text-xs text-gray-500">${dateStr}</td><td class="p-3 font-mono text-xs">#${id.substr(0,4)}</td><td class="p-3 font-bold text-gray-800">${o.userName}</td><td class="p-3 text-xs text-gray-500 max-w-xs truncate">${o.items}</td><td class="p-3 font-bold text-green-700">₹${o.total}</td><td class="p-3">${statusBadge}</td><td class="p-3">${actionBtn}</td></tr>`;
+                    
+                    // Add to Dashboard (Limit 5)
+                    if(dashBody.children.length < 5) {
+                        dashBody.innerHTML += `<tr class="border-b border-gray-50"><td class="p-3 font-mono text-xs">#${id.substr(0,4)}</td><td class="p-3 text-sm font-bold text-gray-700">${o.userName}</td><td class="p-3 font-bold text-green-600">₹${o.total}</td><td class="p-3">${statusBadge}</td></tr>`;
+                    }
+                });
+
+                document.getElementById('stat-pending').innerText = pendingCount;
+                document.getElementById('stat-revenue').innerText = totalRev.toLocaleString();
+                const badge = document.getElementById('pending-badge');
+                if(badge) { badge.innerText = pendingCount; badge.classList.toggle('hidden', pendingCount === 0); }
+            }, handlePermissionError);
+
+            // C. CUSTOMERS
+            onSnapshot(collection(db, "users"), (snapshot) => {
+                document.getElementById('stat-users').innerText = snapshot.size;
+                const tbody = document.getElementById('all-users-body');
+                tbody.innerHTML = "";
+                snapshot.forEach(doc => {
+                    const u = doc.data();
+                    const joinDate = u.joinedAt?.toDate ? u.joinedAt.toDate().toLocaleDateString() : 'N/A';
+                    tbody.innerHTML += `<tr class="hover:bg-gray-50 border-b border-gray-100"><td class="p-3 font-bold text-gray-700">${u.name || 'Unknown'}</td><td class="p-3 text-gray-500 text-xs">${u.email}</td><td class="p-3 text-gray-500 text-xs">${joinDate}</td><td class="p-3 font-bold text-yellow-600">${(u.goldBalance || 0).toFixed(4)}g</td></tr>`;
+                });
+            });
+
+            // D. SIPs (Collection Group Query)
+            // Note: This requires an index in Firestore. If it fails, check console for index creation link.
+            try {
+                onSnapshot(query(collectionGroup(db, 'sips'), orderBy('createdAt', 'desc')), (snapshot) => {
+                    const tbody = document.getElementById('all-sips-body');
+                    tbody.innerHTML = "";
+                    snapshot.forEach(doc => {
+                        const s = doc.data();
+                        const date = s.createdAt?.toDate ? s.createdAt.toDate().toLocaleDateString() : 'N/A';
+                        // Get parent user ID from ref path: users/UID/sips/SIPID
+                        const uid = doc.ref.parent.parent.id; 
+                        tbody.innerHTML += `<tr class="hover:bg-gray-50 border-b border-gray-100"><td class="p-3 font-mono text-xs">#${doc.id.substr(0,5)}</td><td class="p-3 text-xs text-gray-500 font-mono">${uid.substr(0,8)}...</td><td class="p-3 font-bold text-gray-900">₹${s.amount}</td><td class="p-3"><span class="badge badge-sip">${s.status}</span></td><td class="p-3 text-xs text-gray-500">${date}</td></tr>`;
+                    });
+                }, (e) => { 
+                    console.log("SIP Query Error (likely missing index):", e); 
+                    document.getElementById('all-sips-body').innerHTML = `<tr><td colspan="5" class="p-4 text-center text-yellow-600 text-xs">Index required for global SIP view. Check Console.</td></tr>`;
+                });
+            } catch(e) {}
+        }
+
+        function handlePermissionError(error) {
+            console.error("Firestore Error:", error);
+            if (error.code === 'permission-denied' || error.code === 'auth/operation-not-allowed') document.getElementById('permission-modal').classList.remove('hidden');
+        }
+
+        window.markDelivered = async (id) => { if(confirm("Dispatch?")) await updateDoc(doc(db, "orders", id), { status: "Delivered" }); };
+        window.logout = async () => { if(auth) await signOut(auth); window.location.href = "index.html"; }
+
+        // Chart Setup
+        const chartOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { display: false } }, animation: { duration: 0 } };
+        const chartData = { labels: Array(10).fill(''), datasets: [{ label: 'Users', data: Array(10).fill(0), borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', borderWidth: 2, fill: true, tension: 0.4 }] };
+        
+        let chart1, chart2;
+        if(document.getElementById('trafficChartSmall')) chart1 = new Chart(document.getElementById('trafficChartSmall').getContext('2d'), { type: 'line', data: chartData, options: chartOptions });
+        if(document.getElementById('trafficChartBig')) chart2 = new Chart(document.getElementById('trafficChartBig').getContext('2d'), { type: 'line', data: chartData, options: chartOptions });
+
+        function updateChart(val) {
+            [chart1, chart2].forEach(c => {
+                if(c) {
+                    c.data.datasets[0].data.push(val);
+                    c.data.datasets[0].data.shift();
+                    c.update();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
