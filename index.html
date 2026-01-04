@@ -170,62 +170,8 @@
                 <div class="text-center mb-20 reveal"><span class="text-yellow-700 font-bold tracking-widest uppercase text-xs border border-yellow-200 px-3 py-1 rounded-full bg-white">Financial Wellness</span><h2 class="text-4xl md:text-5xl font-bold text-gray-900 mt-4 mb-4">Invest While You Eat</h2><p class="max-w-2xl mx-auto text-gray-600 text-lg">Don't settle for expiring cashback points. Build a real asset portfolio.</p></div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
                     <div class="bg-white p-10 rounded-3xl border border-gray-100 reveal hover:shadow-xl transition duration-300 group"><div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center text-green-600 text-2xl mb-6 group-hover:scale-110 transition"><i class="fas fa-shopping-bag"></i></div><h3 class="text-xl font-bold text-gray-900 mb-2">1. Order Weekly</h3><p class="text-gray-600">Buy your kitchen essentials from us.</p></div>
-                    <!-- Redirects to Account/Vault on Click -->
                     <div onclick="switchView('account')" class="bg-white p-10 rounded-3xl shadow-xl border-2 border-yellow-400 reveal transform md:-translate-y-4 relative z-10 cursor-pointer hover:scale-105 transition-transform duration-300 group"><div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full shadow-sm">CLICK TO VIEW VAULT</div><div class="w-16 h-16 gold-gradient rounded-2xl flex items-center justify-center text-white text-2xl mb-6 shadow-md animate-pulse"><i class="fas fa-magic"></i></div><h3 class="text-xl font-bold text-gray-900 mb-2">2. We Buy Gold</h3><p class="text-gray-600">5% automatically converted to 24K Digital Gold.</p></div>
                     <div class="bg-white p-10 rounded-3xl border border-gray-100 reveal hover:shadow-xl transition duration-300 group"><div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 text-2xl mb-6 group-hover:scale-110 transition"><i class="fas fa-chart-line"></i></div><h3 class="text-xl font-bold text-gray-900 mb-2">3. Wealth Grows</h3><p class="text-gray-600">Secure vault storage. Redeem anytime.</p></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Simplified Production Floor (Updated Images & Link) -->
-        <section id="zones" class="py-24 bg-green-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16 reveal">
-                    <span class="text-green-700 font-bold tracking-widest uppercase text-xs">Simple & Clean</span>
-                    <h2 class="text-4xl font-bold text-gray-900 mt-2">The Production Floor</h2>
-                    <p class="text-gray-600 mt-4 max-w-2xl mx-auto">We divide our farm into two simple zones to ensure every plant gets exactly what it needs.</p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                    <!-- Zone A -->
-                    <div class="bg-white rounded-3xl shadow-md overflow-hidden reveal hover:shadow-xl transition duration-300">
-                        <div class="h-64 relative overflow-hidden group">
-                            <!-- High Quality Gourd Image -->
-                            <img src="https://images.unsplash.com/photo-1595231712325-9c64f65c6932?q=80&w=1000&auto=format&fit=crop" alt="Climbing vegetables" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
-                            <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded text-xs font-bold text-green-800 shadow-sm uppercase">Zone A: Climbing Crops</div>
-                        </div>
-                        <div class="p-8">
-                            <h3 class="text-2xl font-bold text-gray-900 mb-2">The Climbing Zone</h3>
-                            <p class="text-gray-600 mb-4 text-sm leading-relaxed">Vegetables like <span class="font-bold text-green-700">Bottle Gourd</span> and <span class="font-bold text-green-700">Ridge Gourd</span> love to climb.</p>
-                            <ul class="space-y-2 text-sm text-gray-500">
-                                <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i> <span><strong>Strong Metal Frames:</strong> Gravity makes them grow straight.</span></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <!-- Zone B -->
-                    <div class="bg-white rounded-3xl shadow-md overflow-hidden reveal hover:shadow-xl transition duration-300">
-                        <div class="h-64 relative overflow-hidden group">
-                             <!-- High Quality Tomato Image -->
-                            <img src="https://images.unsplash.com/photo-1592841200221-a6898f307baa?q=80&w=1000&auto=format&fit=crop" alt="Ground crops" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
-                            <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded text-xs font-bold text-green-800 shadow-sm uppercase">Zone B: Grounded Crops</div>
-                        </div>
-                        <div class="p-8">
-                            <h3 class="text-2xl font-bold text-gray-900 mb-2">The Grounded Zone</h3>
-                            <p class="text-gray-600 mb-4 text-sm leading-relaxed">For the <span class="font-bold text-red-700">Tomato</span> and <span class="font-bold text-purple-700">Brinjal</span> family that grows in bushes.</p>
-                            <ul class="space-y-2 text-sm text-gray-500">
-                                <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i> <span><strong>Protective Soil Covers:</strong> Keeps fruits clean & shiny.</span></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Production Details Link -->
-                <div class="text-center reveal">
-                    <p class="text-gray-600 mb-4 font-medium">Want to know more about our production process?</p>
-                    <button onclick="switchView('production')" class="bg-white text-green-700 border-2 border-green-600 px-8 py-3 rounded-full font-bold hover:bg-green-50 transition shadow-md flex items-center justify-center gap-2 mx-auto">
-                        <span>See Production Flow & Live Metrics</span>
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
                 </div>
             </div>
         </section>
