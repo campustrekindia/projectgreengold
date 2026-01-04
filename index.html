@@ -10,16 +10,12 @@
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap');
         body { font-family: 'Montserrat', sans-serif; background-color: #fcfdfc; overflow-x: hidden; color: #1f2937; }
         h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
-        
-        /* Hero & Animations */
         .hero-bg { background: linear-gradient(180deg, #ecfccb 0%, #f0fdf4 100%); position: relative; overflow: hidden; }
         #floating-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; overflow: hidden; }
         .floating-wrapper { position: absolute; animation: float-around ease-in-out infinite; will-change: transform; }
         .floating-item { opacity: 0.85; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1)); width: 90px; height: auto; object-fit: contain; will-change: transform; transition: transform 0.1s linear; }
         .floating-coin { filter: drop-shadow(0 0 10px rgba(234, 179, 8, 0.6)); opacity: 1; }
         @keyframes float-around { 0% { transform: translate(0, 0); } 33% { transform: translate(30px, -40px); } 66% { transform: translate(-20px, 20px); } 100% { transform: translate(0, 0); } }
-        
-        /* Components */
         .gold-gradient { background: linear-gradient(135deg, #FFD700 0%, #eab308 50%, #ca8a04 100%); }
         .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
         .reveal.active { opacity: 1; transform: translateY(0); }
@@ -27,13 +23,9 @@
         @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
         .notification-toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #064e3b; color: white; padding: 12px 24px; border-radius: 50px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 100; display: flex; align-items: center; gap: 10px; }
         .notification-toast.show { transform: translateX(-50%) translateY(-90px); }
-        
-        /* Views */
         .view-section { display: block; min-height: 100vh; }
         .view-section.hidden { display: none; }
         .auth-toggle-active { border-bottom: 2px solid #16a34a; color: #16a34a; font-weight: 700; }
-        
-        /* Metrics */
         .metric-block { background: white; border-radius: 1rem; padding: 1.5rem; border: 1px solid #f3f4f6; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); transition: transform 0.3s ease; }
         .metric-block:hover { transform: translateY(-5px); border-color: #bbf7d0; }
         .live-dot { height: 8px; width: 8px; background-color: #ef4444; border-radius: 50%; display: inline-block; animation: pulse-red 2s infinite; }
@@ -46,7 +38,7 @@
     <nav class="fixed w-full z-50 transition-all duration-300 bg-white/50 backdrop-blur-md border-b border-transparent" id="navbar">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
-                <!-- Logo with Secret Admin Tap -->
+                <!-- Logo with Secret Admin Tap Logic attached via ID -->
                 <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer select-none" id="logo-btn">
                     <div class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center text-white shadow-md">
                         <i class="fas fa-leaf text-lg"></i>
@@ -156,8 +148,6 @@
                     <div class="mt-4 md:mt-0"><span class="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg font-bold text-sm flex items-center border border-blue-100"><i class="fas fa-shield-virus mr-2"></i> Ozone Washed</span></div>
                 </div>
                 <div id="harvest-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 reveal"></div>
-                
-                <!-- AI Section -->
                 <div class="mt-32 reveal" id="ai-concierge">
                     <div class="text-center mb-16"><span class="inline-flex items-center gap-2 py-1 px-4 rounded-full bg-purple-50 text-purple-700 text-xs font-bold tracking-wider uppercase mb-4 border border-purple-100"><i class="fas fa-sparkles"></i> Powered by Gemini AI</span><h3 class="text-4xl font-bold text-gray-900">GreenGold Concierge</h3><p class="text-gray-600 mt-3 text-lg">Personal farm assistant. Supports Telugu! 🇮🇳</p></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -251,7 +241,106 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- ORDER HISTORY (NEW) -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+                <div class="p-6 border-b border-gray-100"><h3 class="font-bold text-gray-900 text-lg">My Orders</h3></div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-50 text-gray-500 text-xs uppercase font-bold"><tr><th class="px-6 py-4">Date</th><th class="px-6 py-4">Items</th><th class="px-6 py-4">Total</th><th class="px-6 py-4">Status</th></tr></thead>
+                        <tbody class="divide-y divide-gray-100 text-sm" id="user-orders-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"><div class="p-6 border-b border-gray-100"><h3 class="font-bold text-gray-900 text-lg">Vault & SIP History</h3></div><div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-50 text-gray-500 text-xs uppercase font-bold"><tr><th class="px-6 py-4">Date</th><th class="px-6 py-4">Type</th><th class="px-6 py-4">Gold (g)</th><th class="px-6 py-4">Status</th></tr></thead><tbody class="divide-y divide-gray-100 text-sm" id="vault-history-body"></tbody></table></div></div>
+        </div>
+    </div>
+
+    <!-- VIEW 4: PRODUCTION & METRICS PAGE -->
+    <div id="production-view" class="view-section hidden bg-gray-50 min-h-screen pt-28 pb-20">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-10">
+                <button onclick="switchView('home', 'zones')" class="text-green-700 font-bold hover:underline mb-4 inline-block"><i class="fas fa-arrow-left mr-2"></i> Back to Farm</button>
+                <h2 class="text-4xl font-bold text-gray-900">Our Production Journey</h2>
+                <p class="text-gray-600 mt-2 text-lg">Transparent. Data-driven. Chemical-free.</p>
+            </div>
+
+            <!-- Live Metrics Dashboard -->
+            <div class="mb-16">
+                <h3 class="text-xl font-bold text-gray-800 mb-6 border-l-4 border-green-500 pl-3">Live Farm Metrics</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="metric-block">
+                        <div class="text-gray-500 text-xs font-bold uppercase mb-2">Soil Moisture (Zone A)</div>
+                        <div class="text-3xl font-bold text-blue-600">68%</div>
+                        <div class="text-xs text-green-600 mt-1"><i class="fas fa-check-circle"></i> Optimal</div>
+                    </div>
+                    <div class="metric-block">
+                        <div class="text-gray-500 text-xs font-bold uppercase mb-2">Air Temperature</div>
+                        <div class="text-3xl font-bold text-orange-500">28°C</div>
+                        <div class="text-xs text-gray-400 mt-1">Humidity: 45%</div>
+                    </div>
+                    <div class="metric-block">
+                        <div class="text-gray-500 text-xs font-bold uppercase mb-2">Harvest Today</div>
+                        <div class="text-3xl font-bold text-green-600">45 Kg</div>
+                        <div class="text-xs text-gray-400 mt-1">Tomatoes & Gourds</div>
+                    </div>
+                    <div class="metric-block">
+                        <div class="text-gray-500 text-xs font-bold uppercase mb-2">Ozone Status</div>
+                        <div class="text-3xl font-bold text-purple-600">Active</div>
+                        <div class="text-xs text-purple-400 mt-1">Cleaning Cycle ON</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Process Flow -->
+            <div class="mb-16">
+                <h3 class="text-xl font-bold text-gray-800 mb-6 border-l-4 border-blue-500 pl-3">The Process Flow</h3>
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-center">
+                        <div class="flex-1">
+                            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-700 text-2xl mx-auto mb-3"><i class="fas fa-seedling"></i></div>
+                            <h4 class="font-bold">1. Seeding</h4>
+                            <p class="text-xs text-gray-500 mt-1">Coco-peat trays</p>
+                        </div>
+                        <div class="hidden md:block w-12 h-1 bg-gray-200"></div>
+                        <div class="flex-1">
+                            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-700 text-2xl mx-auto mb-3"><i class="fas fa-network-wired"></i></div>
+                            <h4 class="font-bold">2. IoT Care</h4>
+                            <p class="text-xs text-gray-500 mt-1">Drip irrigation</p>
+                        </div>
+                        <div class="hidden md:block w-12 h-1 bg-gray-200"></div>
+                        <div class="flex-1">
+                            <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center text-orange-700 text-2xl mx-auto mb-3"><i class="fas fa-hand-holding-heart"></i></div>
+                            <h4 class="font-bold">3. Harvest</h4>
+                            <p class="text-xs text-gray-500 mt-1">5:00 AM Picking</p>
+                        </div>
+                        <div class="hidden md:block w-12 h-1 bg-gray-200"></div>
+                        <div class="flex-1">
+                            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 text-2xl mx-auto mb-3"><i class="fas fa-shower"></i></div>
+                            <h4 class="font-bold">4. Ozone Wash</h4>
+                            <p class="text-xs text-gray-500 mt-1">99% Germ Free</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- The Philosophy -->
+            <div class="bg-gray-900 rounded-3xl p-10 text-white relative overflow-hidden">
+                <div class="relative z-10 max-w-3xl">
+                    <h3 class="text-3xl font-bold mb-4 text-yellow-400">Our Profit Philosophy</h3>
+                    <p class="text-lg leading-relaxed text-gray-300 mb-6">
+                        "We are onto limited but healthy, fresh production. We wanted to share our products, starting with friends and expanding slowly."
+                    </p>
+                    <div class="bg-white/10 backdrop-blur-md p-6 rounded-xl border border-white/20">
+                        <h4 class="font-bold text-white mb-2">How can we afford the Gold SIP?</h4>
+                        <p class="text-sm text-gray-300">
+                            By selling directly to you, we eliminate the middlemen (mandi agents, wholesalers, retailers) who typically take 40-50% of the profit. We simply pass a portion of those savings back to you as <strong>24K Gold</strong>. It's not a discount; it's shared prosperity.
+                        </p>
+                    </div>
+                </div>
+                <i class="fas fa-hands-helping absolute bottom-0 right-0 text-[12rem] text-white opacity-5"></i>
+            </div>
         </div>
     </div>
 
@@ -259,7 +348,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, onSnapshot, query, orderBy, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, onSnapshot, query, orderBy, updateDoc, increment, where } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
         // 1. CONFIGURATION
         const firebaseConfig = {
@@ -402,6 +491,26 @@
             });
             onSnapshot(query(collection(db, "users", uid, "sips"), orderBy("createdAt", "desc")), (snap) => {
                 if(!snap.empty) document.getElementById('sip-status-display').innerHTML = `<div class="text-green-600 font-bold">Active: ₹${snap.docs[0].data().amount}/mo</div>`;
+            });
+            
+            // Listen for User Orders
+            onSnapshot(query(collection(db, "orders"), where("userId", "==", uid), orderBy("date", "desc")), (snap) => {
+                const tbody = document.getElementById('user-orders-body');
+                if (snap.empty) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400">No orders yet.</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = snap.docs.map(doc => {
+                    const d = doc.data();
+                    const date = d.date?.toDate ? d.date.toDate().toLocaleDateString() : 'N/A';
+                    const statusColor = d.status === 'Delivered' ? 'text-green-600 bg-green-50' : 'text-yellow-600 bg-yellow-50';
+                    return `<tr>
+                        <td class="px-6 py-4 text-gray-500">${date}</td>
+                        <td class="px-6 py-4 text-gray-800 font-medium truncate max-w-xs" title="${d.items.join(', ')}">${d.items.join(', ')}</td>
+                        <td class="px-6 py-4 font-bold">₹${d.total}</td>
+                        <td class="px-6 py-4"><span class="px-2 py-1 rounded text-xs font-bold ${statusColor}">${d.status}</span></td>
+                    </tr>`;
+                }).join('');
             });
         }
 
