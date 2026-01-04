@@ -10,22 +10,36 @@
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap');
         body { font-family: 'Montserrat', sans-serif; background-color: #fcfdfc; overflow-x: hidden; color: #1f2937; }
         h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
+        
+        /* Hero & Animations */
         .hero-bg { background: linear-gradient(180deg, #ecfccb 0%, #f0fdf4 100%); position: relative; overflow: hidden; }
         #floating-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; overflow: hidden; }
         .floating-wrapper { position: absolute; animation: float-around ease-in-out infinite; will-change: transform; }
         .floating-item { opacity: 0.85; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1)); width: 90px; height: auto; object-fit: contain; will-change: transform; transition: transform 0.1s linear; }
         .floating-coin { filter: drop-shadow(0 0 10px rgba(234, 179, 8, 0.6)); opacity: 1; }
+        
         @keyframes float-around { 0% { transform: translate(0, 0); } 33% { transform: translate(30px, -40px); } 66% { transform: translate(-20px, 20px); } 100% { transform: translate(0, 0); } }
+        
         .gold-gradient { background: linear-gradient(135deg, #FFD700 0%, #eab308 50%, #ca8a04 100%); }
         .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
         .reveal.active { opacity: 1; transform: translateY(0); }
+        
+        /* Cart Animations */
         .cart-open { animation: slideInRight 0.3s ease-out forwards; }
         @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        
+        /* Toast Notification */
         .notification-toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #064e3b; color: white; padding: 12px 24px; border-radius: 50px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 100; display: flex; align-items: center; gap: 10px; }
         .notification-toast.show { transform: translateX(-50%) translateY(-90px); }
+        
+        /* View Management */
         .view-section { display: block; min-height: 100vh; }
         .view-section.hidden { display: none; }
+        
+        /* Auth Styles */
         .auth-toggle-active { border-bottom: 2px solid #16a34a; color: #16a34a; font-weight: 700; }
+        
+        /* Metrics */
         .metric-block { background: white; border-radius: 1rem; padding: 1.5rem; border: 1px solid #f3f4f6; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); transition: transform 0.3s ease; }
         .metric-block:hover { transform: translateY(-5px); border-color: #bbf7d0; }
         .live-dot { height: 8px; width: 8px; background-color: #ef4444; border-radius: 50%; display: inline-block; animation: pulse-red 2s infinite; }
@@ -38,7 +52,7 @@
     <nav class="fixed w-full z-50 transition-all duration-300 bg-white/50 backdrop-blur-md border-b border-transparent" id="navbar">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
-                <!-- Logo -->
+                <!-- Logo with Secret Admin Tap Logic attached via ID -->
                 <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer select-none" id="logo-btn">
                     <div class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center text-white shadow-md">
                         <i class="fas fa-leaf text-lg"></i>
@@ -99,16 +113,37 @@
         <header class="relative h-screen min-h-[650px] flex items-center justify-center hero-bg">
             <div id="floating-container"></div>
             <div class="absolute inset-0 bg-gradient-to-b from-white/0 via-white/30 to-white/80 pointer-events-none z-10"></div>
+            
             <div class="relative z-20 text-center px-4 max-w-5xl mx-auto reveal active">
-                <div class="inline-flex items-center gap-2 bg-white/80 backdrop-blur border border-yellow-400 rounded-full px-5 py-2 mb-8 shadow-sm"><i class="fas fa-star text-yellow-500"></i><span class="text-yellow-800 font-bold text-xs md:text-sm tracking-wider uppercase">Earn Gold With Every Bite</span></div>
-                <h1 class="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-6 leading-tight tracking-tight text-gray-900 drop-shadow-sm">Eat Fresh. <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-green-800">Grow Gold.</span></h1>
-                <p class="text-lg md:text-xl text-gray-700 mb-10 max-w-2xl mx-auto font-medium leading-relaxed">Hyderabad's first precision farm. We turn 5% of your vegetable bill into <strong class="text-yellow-600 bg-yellow-50 px-1 rounded">24K Digital Gold</strong>.</p>
+                <div class="inline-flex items-center gap-2 bg-white/80 backdrop-blur border border-yellow-400 rounded-full px-5 py-2 mb-8 shadow-sm">
+                    <i class="fas fa-star text-yellow-500"></i>
+                    <span class="text-yellow-800 font-bold text-xs md:text-sm tracking-wider uppercase">Earn Gold With Every Bite</span>
+                </div>
+                
+                <h1 class="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-6 leading-tight tracking-tight text-gray-900 drop-shadow-sm">
+                    Eat Fresh. <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-green-800">Grow Gold.</span>
+                </h1>
+                
+                <p class="text-lg md:text-xl text-gray-700 mb-10 max-w-2xl mx-auto font-medium leading-relaxed">
+                    Hyderabad's first precision farm. We turn 5% of your vegetable bill into <strong class="text-yellow-600 bg-yellow-50 px-1 rounded">24K Digital Gold</strong>.
+                </p>
+                
                 <div class="flex flex-col sm:flex-row gap-5 justify-center">
-                    <button onclick="switchView('home', 'gold-sip')" class="gold-gradient text-white px-8 py-4 rounded-full font-bold hover:brightness-110 transition shadow-xl flex items-center justify-center gap-3 transform hover:scale-105 duration-200 border border-yellow-400"><i class="fas fa-coins text-xl text-white"></i> <span>How It Works</span></button>
-                    <button onclick="switchView('home', 'market')" class="bg-white text-green-800 px-8 py-4 rounded-full font-bold hover:bg-gray-50 transition shadow-lg flex items-center justify-center gap-3 border border-green-100 hover:border-green-300"><i class="fas fa-shopping-basket text-xl text-green-600"></i> <span>Order Fresh</span></button>
+                    <button onclick="switchView('home', 'gold-sip')" class="gold-gradient text-white px-8 py-4 rounded-full font-bold hover:brightness-110 transition shadow-xl flex items-center justify-center gap-3 transform hover:scale-105 duration-200 border border-yellow-400">
+                        <i class="fas fa-coins text-xl text-white"></i> 
+                        <span>How It Works</span>
+                    </button>
+                    <button onclick="switchView('home', 'market')" class="bg-white text-green-800 px-8 py-4 rounded-full font-bold hover:bg-gray-50 transition shadow-lg flex items-center justify-center gap-3 border border-green-100 hover:border-green-300">
+                        <i class="fas fa-shopping-basket text-xl text-green-600"></i> 
+                        <span>Order Fresh</span>
+                    </button>
                 </div>
             </div>
-            <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce z-20 opacity-50"><i class="fas fa-chevron-down text-3xl text-green-800"></i></div>
+            
+            <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce z-20 opacity-50">
+                <i class="fas fa-chevron-down text-3xl text-green-800"></i>
+            </div>
         </header>
 
         <!-- About Section -->
@@ -135,8 +170,62 @@
                 <div class="text-center mb-20 reveal"><span class="text-yellow-700 font-bold tracking-widest uppercase text-xs border border-yellow-200 px-3 py-1 rounded-full bg-white">Financial Wellness</span><h2 class="text-4xl md:text-5xl font-bold text-gray-900 mt-4 mb-4">Invest While You Eat</h2><p class="max-w-2xl mx-auto text-gray-600 text-lg">Don't settle for expiring cashback points. Build a real asset portfolio.</p></div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
                     <div class="bg-white p-10 rounded-3xl border border-gray-100 reveal hover:shadow-xl transition duration-300 group"><div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center text-green-600 text-2xl mb-6 group-hover:scale-110 transition"><i class="fas fa-shopping-bag"></i></div><h3 class="text-xl font-bold text-gray-900 mb-2">1. Order Weekly</h3><p class="text-gray-600">Buy your kitchen essentials from us.</p></div>
+                    <!-- Redirects to Account/Vault on Click -->
                     <div onclick="switchView('account')" class="bg-white p-10 rounded-3xl shadow-xl border-2 border-yellow-400 reveal transform md:-translate-y-4 relative z-10 cursor-pointer hover:scale-105 transition-transform duration-300 group"><div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full shadow-sm">CLICK TO VIEW VAULT</div><div class="w-16 h-16 gold-gradient rounded-2xl flex items-center justify-center text-white text-2xl mb-6 shadow-md animate-pulse"><i class="fas fa-magic"></i></div><h3 class="text-xl font-bold text-gray-900 mb-2">2. We Buy Gold</h3><p class="text-gray-600">5% automatically converted to 24K Digital Gold.</p></div>
                     <div class="bg-white p-10 rounded-3xl border border-gray-100 reveal hover:shadow-xl transition duration-300 group"><div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 text-2xl mb-6 group-hover:scale-110 transition"><i class="fas fa-chart-line"></i></div><h3 class="text-xl font-bold text-gray-900 mb-2">3. Wealth Grows</h3><p class="text-gray-600">Secure vault storage. Redeem anytime.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Simplified Production Floor (Updated Images & Link) -->
+        <section id="zones" class="py-24 bg-green-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16 reveal">
+                    <span class="text-green-700 font-bold tracking-widest uppercase text-xs">Simple & Clean</span>
+                    <h2 class="text-4xl font-bold text-gray-900 mt-2">The Production Floor</h2>
+                    <p class="text-gray-600 mt-4 max-w-2xl mx-auto">We divide our farm into two simple zones to ensure every plant gets exactly what it needs.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                    <!-- Zone A -->
+                    <div class="bg-white rounded-3xl shadow-md overflow-hidden reveal hover:shadow-xl transition duration-300">
+                        <div class="h-64 relative overflow-hidden group">
+                            <!-- High Quality Gourd Image -->
+                            <img src="https://images.unsplash.com/photo-1595231712325-9c64f65c6932?q=80&w=1000&auto=format&fit=crop" alt="Climbing vegetables" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
+                            <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded text-xs font-bold text-green-800 shadow-sm uppercase">Zone A: Climbing Crops</div>
+                        </div>
+                        <div class="p-8">
+                            <h3 class="text-2xl font-bold text-gray-900 mb-2">The Climbing Zone</h3>
+                            <p class="text-gray-600 mb-4 text-sm leading-relaxed">Vegetables like <span class="font-bold text-green-700">Bottle Gourd</span> and <span class="font-bold text-green-700">Ridge Gourd</span> love to climb.</p>
+                            <ul class="space-y-2 text-sm text-gray-500">
+                                <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i> <span><strong>Strong Metal Frames:</strong> Gravity makes them grow straight.</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Zone B -->
+                    <div class="bg-white rounded-3xl shadow-md overflow-hidden reveal hover:shadow-xl transition duration-300">
+                        <div class="h-64 relative overflow-hidden group">
+                             <!-- High Quality Tomato Image -->
+                            <img src="https://images.unsplash.com/photo-1592841200221-a6898f307baa?q=80&w=1000&auto=format&fit=crop" alt="Ground crops" class="w-full h-full object-cover group-hover:scale-105 transition duration-700">
+                            <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded text-xs font-bold text-green-800 shadow-sm uppercase">Zone B: Grounded Crops</div>
+                        </div>
+                        <div class="p-8">
+                            <h3 class="text-2xl font-bold text-gray-900 mb-2">The Grounded Zone</h3>
+                            <p class="text-gray-600 mb-4 text-sm leading-relaxed">For the <span class="font-bold text-red-700">Tomato</span> and <span class="font-bold text-purple-700">Brinjal</span> family that grows in bushes.</p>
+                            <ul class="space-y-2 text-sm text-gray-500">
+                                <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i> <span><strong>Protective Soil Covers:</strong> Keeps fruits clean & shiny.</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Production Details Link -->
+                <div class="text-center reveal">
+                    <p class="text-gray-600 mb-4 font-medium">Want to know more about our production process?</p>
+                    <button onclick="switchView('production')" class="bg-white text-green-700 border-2 border-green-600 px-8 py-3 rounded-full font-bold hover:bg-green-50 transition shadow-md flex items-center justify-center gap-2 mx-auto">
+                        <span>See Production Flow & Live Metrics</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
                 </div>
             </div>
         </section>
@@ -380,9 +469,8 @@
 
                     if (tapCount === 8) {
                         e.preventDefault(); e.stopPropagation();
-                        const pin = prompt("🔐 Admin Security\nEnter Access PIN:");
-                        if (pin === "2026") window.location.href = "admin.html"; 
-                        else { alert("Access Denied."); tapCount = 0; }
+                        // Direct Redirect - No PIN required as per request
+                        window.location.href = "admin.html"; 
                     } else if(tapCount === 1) {
                         // Allow normal click behavior (Go Home)
                         switchView('home');
@@ -496,13 +584,17 @@
             });
             
             // Listen for User Orders
-            onSnapshot(query(collection(db, "orders"), where("userId", "==", uid), orderBy("date", "desc")), (snap) => {
+            onSnapshot(query(collection(db, "orders"), where("userId", "==", uid)), (snap) => {
                 const tbody = document.getElementById('user-orders-body');
                 if (snap.empty) {
                     tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400">No orders yet.</td></tr>';
                     return;
                 }
-                tbody.innerHTML = snap.docs.map(doc => {
+                
+                // Manual Sort in JS to fix missing index issue
+                const sortedDocs = snap.docs.sort((a,b) => b.data().date.toMillis() - a.data().date.toMillis());
+                
+                tbody.innerHTML = sortedDocs.map(doc => {
                     const d = doc.data();
                     const date = d.date?.toDate ? d.date.toDate().toLocaleDateString() : 'N/A';
                     const statusColor = d.status === 'Delivered' ? 'text-green-600 bg-green-50' : 'text-yellow-600 bg-yellow-50';
