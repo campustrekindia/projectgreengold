@@ -8,374 +8,338 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap');
-        body { font-family: 'Montserrat', sans-serif; background-color: #fcfdfc; overflow-x: hidden; color: #1f2937; }
+        body { font-family: 'Montserrat', sans-serif; background-color: #fcfdfc; overflow-x: hidden; color: #1f2937; width: 100%; }
         h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
         
-        /* Hero & Animations */
         .hero-bg { background: linear-gradient(180deg, #ecfccb 0%, #f0fdf4 100%); position: relative; overflow: hidden; }
-        #floating-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; overflow: hidden; }
+        #floating-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
         .floating-wrapper { position: absolute; animation: float-around ease-in-out infinite; will-change: transform; }
-        .floating-item { opacity: 0.85; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1)); width: 90px; height: auto; object-fit: contain; will-change: transform; transition: transform 0.1s linear; }
-        .floating-coin { filter: drop-shadow(0 0 10px rgba(234, 179, 8, 0.6)); opacity: 1; }
+        .floating-item { opacity: 0.6; width: 60px; height: auto; transition: transform 0.1s linear; }
+        @media (min-width: 768px) { .floating-item { width: 90px; opacity: 0.85; } }
         
-        @keyframes float-around { 0% { transform: translate(0, 0); } 33% { transform: translate(30px, -40px); } 66% { transform: translate(-20px, 20px); } 100% { transform: translate(0, 0); } }
+        @keyframes float-around { 0% { transform: translate(0, 0); } 33% { transform: translate(20px, -30px); } 66% { transform: translate(-15px, 15px); } 100% { transform: translate(0, 0); } }
         
         .gold-gradient { background: linear-gradient(135deg, #FFD700 0%, #eab308 50%, #ca8a04 100%); }
-        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
+        .reveal { opacity: 0; transform: translateY(20px); transition: all 0.6s ease-out; }
         .reveal.active { opacity: 1; transform: translateY(0); }
         
-        /* Cart Animations */
-        .cart-open { animation: slideInRight 0.3s ease-out forwards; }
-        @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        .notification-toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(150px); background: #064e3b; color: white; padding: 12px 24px; border-radius: 50px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 100; white-space: nowrap; }
+        .notification-toast.show { transform: translateX(-50%) translateY(0); }
         
-        /* Toast Notification */
-        .notification-toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #064e3b; color: white; padding: 12px 24px; border-radius: 50px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 100; display: flex; align-items: center; gap: 10px; }
-        .notification-toast.show { transform: translateX(-50%) translateY(-90px); }
-        
-        /* View Management */
-        .view-section { display: block; min-height: 100vh; }
+        .view-section { display: block; min-height: 100vh; width: 100%; }
         .view-section.hidden { display: none; }
+        .auth-toggle-active { border-bottom: 3px solid #16a34a; color: #16a34a; font-weight: 700; }
         
-        /* Auth Styles */
-        .auth-toggle-active { border-bottom: 2px solid #16a34a; color: #16a34a; font-weight: 700; }
-        
-        /* Metrics */
-        .metric-block { background: white; border-radius: 1rem; padding: 1.5rem; border: 1px solid #f3f4f6; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); transition: transform 0.3s ease; }
-        .metric-block:hover { transform: translateY(-5px); border-color: #bbf7d0; }
+        .metric-block { background: white; border-radius: 1rem; padding: 1.25rem; border: 1px solid #f3f4f6; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
         .live-dot { height: 8px; width: 8px; background-color: #ef4444; border-radius: 50%; display: inline-block; animation: pulse-red 2s infinite; }
         @keyframes pulse-red { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+
+        .farm-map-container { background-image: radial-gradient(#e5e7eb 1px, transparent 1px); background-size: 20px 20px; border: 2px dashed #d1d5db; }
     </style>
 </head>
-<body class="text-gray-800 antialiased">
+<body class="antialiased">
 
     <!-- Navigation -->
-    <nav class="fixed w-full z-50 transition-all duration-300 bg-white/50 backdrop-blur-md border-b border-transparent" id="navbar">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
-                <!-- Logo with Secret Admin Tap Logic attached via ID -->
-                <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer select-none" id="logo-btn">
-                    <div class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center text-white shadow-md">
-                        <i class="fas fa-leaf text-lg"></i>
+    <nav class="fixed w-full z-50 transition-all duration-300 bg-white/80 backdrop-blur-md border-b border-gray-100" id="navbar">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16 md:h-20">
+                <div class="flex items-center gap-2 cursor-pointer select-none" id="logo-btn">
+                    <div class="w-8 h-8 md:w-10 md:h-10 bg-green-600 rounded-full flex items-center justify-center text-white shadow-md">
+                        <i class="fas fa-leaf text-sm md:text-lg"></i>
                     </div>
-                    <span class="font-bold text-xl tracking-wide text-gray-900">Project <span class="text-green-700">GreenGold</span></span>
+                    <span class="font-bold text-lg md:text-xl tracking-tight text-gray-900">GreenGold</span>
                 </div>
                 
                 <div class="hidden md:flex space-x-6 items-center">
-                    <button onclick="switchView('home', 'about')" class="text-gray-700 hover:text-green-700 font-semibold transition py-2 text-sm uppercase tracking-wide">About</button>
-                    <button onclick="switchView('home', 'gold-sip')" class="text-yellow-700 hover:text-yellow-800 font-bold transition bg-yellow-100 px-4 py-1.5 rounded-full text-sm border border-yellow-200 shadow-sm"><i class="fas fa-crown mr-1"></i> Gold SIP</button>
-                    <button onclick="switchView('home', 'market')" class="text-gray-700 hover:text-green-700 font-semibold transition py-2 text-sm uppercase tracking-wide">Market</button>
+                    <button onclick="switchView('home', 'plans')" class="text-gray-600 hover:text-green-700 font-semibold text-sm uppercase tracking-wide">Plans</button>
+                    <button onclick="switchView('home', 'gold-sip')" class="text-yellow-700 hover:text-yellow-800 font-bold bg-yellow-50 px-4 py-1.5 rounded-full text-sm border border-yellow-200">Gold SIP</button>
+                    <button onclick="switchView('home', 'market')" class="text-gray-600 hover:text-green-700 font-semibold text-sm uppercase tracking-wide">Market</button>
+                    <button onclick="switchView('home', 'zones')" class="text-gray-600 hover:text-green-700 font-semibold text-sm uppercase tracking-wide">Farm Map</button>
                     <div id="nav-auth-container">
-                        <button onclick="switchView('auth')" class="bg-gray-900 text-white px-5 py-2 rounded-full hover:bg-gray-800 transition shadow-lg text-sm font-bold flex items-center gap-2">
-                            <span>Login / Register</span> <i class="fas fa-arrow-right"></i>
-                        </button>
+                        <button onclick="switchView('auth')" class="bg-gray-900 text-white px-5 py-2 rounded-full text-sm font-bold">Login</button>
                     </div>
                 </div>
                 
-                <div class="md:hidden flex items-center">
-                    <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="text-gray-800 hover:text-green-700 p-2"><i class="fas fa-bars text-2xl"></i></button>
+                <div class="md:hidden flex items-center gap-4">
+                    <button onclick="toggleCart()" class="relative text-gray-700">
+                        <i class="fas fa-shopping-basket text-xl"></i>
+                        <span id="mobile-cart-badge" class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
+                    </button>
+                    <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="text-gray-800 p-2"><i class="fas fa-bars text-xl"></i></button>
                 </div>
             </div>
         </div>
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t absolute w-full shadow-xl">
-            <button onclick="switchView('home', 'market')" class="block w-full text-left py-4 px-6 text-green-800 font-bold bg-green-50 border-l-4 border-green-600">Shop Market</button>
-            <button onclick="switchView('home', 'gold-sip')" class="block w-full text-left py-4 px-6 text-yellow-800 font-bold bg-yellow-50 border-l-4 border-yellow-500">Gold SIP Program</button>
-            <button id="mobile-auth-btn" onclick="handleMobileAuthClick()" class="block w-full text-left py-4 px-6 text-gray-700 hover:bg-green-50">Login / Register</button>
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t absolute w-full shadow-2xl">
+            <div class="flex flex-col p-4 space-y-1">
+                <button onclick="switchView('home', 'plans')" class="text-left py-4 px-6 text-gray-700 font-bold border-b border-gray-50">Subscription Plans</button>
+                <button onclick="switchView('home', 'market')" class="text-left py-4 px-6 text-green-700 font-bold border-b border-gray-50">Shop Market</button>
+                <button onclick="switchView('home', 'gold-sip')" class="text-left py-4 px-6 text-yellow-700 font-bold border-b border-gray-50">Gold SIP Program</button>
+                <button onclick="switchView('home', 'zones')" class="text-left py-4 px-6 text-gray-700 font-bold border-b border-gray-50">Farm Map</button>
+                <button id="mobile-auth-btn" onclick="handleMobileAuthClick()" class="text-left py-4 px-6 text-blue-600 font-bold">Account Access</button>
+            </div>
         </div>
     </nav>
 
-    <!-- Floating Cart Button -->
-    <button onclick="toggleCart()" class="fixed bottom-6 right-6 z-[60] bg-green-700 text-white w-16 h-16 rounded-full shadow-2xl flex items-center justify-center hover:bg-green-800 hover:scale-110 transition-all duration-300 group border-4 border-white">
+    <!-- Floating Cart Button (Desktop only, hidden on mobile) -->
+    <button onclick="toggleCart()" class="hidden md:flex fixed bottom-6 right-6 z-[60] bg-green-700 text-white w-16 h-16 rounded-full shadow-2xl items-center justify-center hover:bg-green-800 transition-all border-4 border-white">
         <div class="relative">
-            <i class="fas fa-shopping-basket text-2xl group-hover:-rotate-12 transition duration-300"></i>
-            <span id="cart-count" class="absolute -top-3 -right-3 bg-red-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-sm">0</span>
+            <i class="fas fa-shopping-basket text-2xl"></i>
+            <span id="cart-count" class="absolute -top-3 -right-3 bg-red-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border-2 border-white">0</span>
         </div>
     </button>
 
     <!-- Cart Sidebar -->
     <div id="cart-modal" class="fixed inset-0 z-[70] hidden">
-        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="toggleCart()"></div>
-        <div class="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl flex flex-col cart-open">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50"><h2 class="text-2xl font-bold text-gray-900 font-serif">Your Basket</h2><button onclick="toggleCart()" class="text-gray-400 hover:text-red-500 transition"><i class="fas fa-times text-2xl"></i></button></div>
-            <div id="cart-items" class="flex-grow overflow-y-auto p-6 space-y-4"></div>
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="toggleCart()"></div>
+        <div class="absolute right-0 top-0 h-full w-full md:max-w-md bg-white shadow-2xl flex flex-col transition-transform">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                <h2 class="text-xl font-bold text-gray-900">Your Basket</h2>
+                <button onclick="toggleCart()" class="text-gray-400 p-2"><i class="fas fa-times text-2xl"></i></button>
+            </div>
+            <div id="cart-items" class="flex-grow overflow-y-auto p-6 space-y-4 bg-white"></div>
             <div class="p-6 border-t border-gray-100 bg-gray-50">
-                <div class="flex justify-between items-center mb-4"><span class="text-gray-600">Subtotal</span><span id="cart-total" class="text-2xl font-bold text-gray-900">₹0</span></div>
-                <div class="bg-yellow-100 text-yellow-800 p-3 rounded-lg text-xs font-bold mb-4 flex items-center gap-2 border border-yellow-200"><i class="fas fa-coins text-yellow-600"></i><span id="gold-reward-text">Add items to see Gold Reward</span></div>
-                <button onclick="checkout()" class="w-full bg-green-700 text-white py-4 rounded-xl font-bold hover:bg-green-800 transition shadow-lg flex justify-center items-center gap-2">Checkout <i class="fas fa-arrow-right"></i></button>
+                <div class="flex justify-between items-center mb-4 text-lg font-bold"><span>Total</span><span id="cart-total">₹0</span></div>
+                <div class="bg-yellow-50 text-yellow-800 p-3 rounded-xl text-xs font-bold mb-6 border border-yellow-200 flex items-center gap-2">
+                    <i class="fas fa-coins text-yellow-600"></i><span id="gold-reward-text">Add items for Gold Reward</span>
+                </div>
+                <button onclick="checkout()" class="w-full bg-green-700 text-white py-4 rounded-xl font-bold hover:bg-green-800 shadow-lg">Checkout Now</button>
             </div>
         </div>
     </div>
 
-    <div id="toast" class="notification-toast"><i class="fas fa-check-circle text-green-300 text-xl"></i><span id="toast-message" class="font-medium text-sm">Item added!</span></div>
+    <div id="toast" class="notification-toast">Item added!</div>
 
     <!-- VIEW 1: HOME PAGE -->
     <div id="home-view" class="view-section">
         <!-- Hero Section -->
-        <header class="relative h-screen min-h-[650px] flex items-center justify-center hero-bg">
+        <header class="relative min-h-[85vh] md:h-screen flex items-center justify-center hero-bg px-4">
             <div id="floating-container"></div>
-            <div class="absolute inset-0 bg-gradient-to-b from-white/0 via-white/30 to-white/80 pointer-events-none z-10"></div>
-            
-            <div class="relative z-20 text-center px-4 max-w-5xl mx-auto reveal active">
-                <div class="inline-flex items-center gap-2 bg-white/80 backdrop-blur border border-yellow-400 rounded-full px-5 py-2 mb-8 shadow-sm">
-                    <i class="fas fa-star text-yellow-500"></i>
-                    <span class="text-yellow-800 font-bold text-xs md:text-sm tracking-wider uppercase">Earn Gold With Every Bite</span>
+            <div class="relative z-20 text-center max-w-4xl mx-auto pt-20">
+                <div class="inline-flex items-center gap-2 bg-white/90 backdrop-blur border border-yellow-400 rounded-full px-4 py-1.5 mb-6 shadow-sm">
+                    <i class="fas fa-star text-yellow-500 text-xs"></i>
+                    <span class="text-yellow-800 font-bold text-[10px] md:text-xs tracking-widest uppercase">Earn Gold With Every Bite</span>
                 </div>
                 
-                <h1 class="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-6 leading-tight tracking-tight text-gray-900 drop-shadow-sm">
+                <h1 class="text-4xl md:text-7xl font-extrabold mb-4 leading-tight text-gray-900">
                     Eat Fresh. <br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-green-800">Grow Gold.</span>
+                    <span class="text-green-700">Grow Gold.</span>
                 </h1>
                 
-                <p class="text-lg md:text-xl text-gray-700 mb-10 max-w-2xl mx-auto font-medium leading-relaxed">
-                    Hyderabad's first precision farm. We turn 5% of your vegetable bill into <strong class="text-yellow-600 bg-yellow-50 px-1 rounded">24K Digital Gold</strong>.
+                <p class="text-sm md:text-lg text-gray-600 mb-8 max-w-lg mx-auto font-medium">
+                    Hyderabad's precision farm. We convert 5% of your veggie bill into <strong class="text-yellow-600">24K Digital Gold</strong>.
                 </p>
                 
-                <div class="flex flex-col sm:flex-row gap-5 justify-center">
-                    <button onclick="switchView('home', 'gold-sip')" class="gold-gradient text-white px-8 py-4 rounded-full font-bold hover:brightness-110 transition shadow-xl flex items-center justify-center gap-3 transform hover:scale-105 duration-200 border border-yellow-400">
-                        <i class="fas fa-coins text-xl text-white"></i> 
-                        <span>How It Works</span>
-                    </button>
-                    <button onclick="switchView('home', 'market')" class="bg-white text-green-800 px-8 py-4 rounded-full font-bold hover:bg-gray-50 transition shadow-lg flex items-center justify-center gap-3 border border-green-100 hover:border-green-300">
-                        <i class="fas fa-shopping-basket text-xl text-green-600"></i> 
-                        <span>Order Fresh</span>
-                    </button>
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <button onclick="switchView('home', 'plans')" class="gold-gradient text-white px-8 py-3.5 rounded-full font-bold shadow-lg text-sm">View Subscription Plans</button>
+                    <button onclick="switchView('home', 'market')" class="bg-white text-green-800 px-8 py-3.5 rounded-full font-bold shadow-md border border-green-100 text-sm">Order Ala-carte</button>
                 </div>
-            </div>
-            
-            <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce z-20 opacity-50">
-                <i class="fas fa-chevron-down text-3xl text-green-800"></i>
             </div>
         </header>
 
-        <!-- About Section -->
-        <section id="about" class="py-24 bg-white relative overflow-hidden">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                <div class="text-center mb-16 reveal"><span class="text-green-700 font-bold tracking-widest uppercase text-xs">Our Mission</span><h2 class="text-4xl font-bold text-gray-900 mt-2">Precision & Purity</h2><p class="text-gray-600 mt-4 max-w-2xl mx-auto">We use high-tech farming to deliver the freshest produce in Hyderabad.</p></div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                    <div class="reveal"><img src="https://images.unsplash.com/photo-1625246333195-5519a9665892?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Farm" class="rounded-3xl shadow-2xl"></div>
-                    <div class="reveal">
-                        <h3 class="text-2xl font-bold text-gray-900 mb-4">Why GreenGold?</h3>
-                        <ul class="space-y-4 text-gray-600">
-                            <li class="flex items-center gap-3"><i class="fas fa-check-circle text-green-600"></i> <span>Zero Residue Farming</span></li>
-                            <li class="flex items-center gap-3"><i class="fas fa-check-circle text-green-600"></i> <span>Harvested at 5 AM, Delivered by 9 AM</span></li>
-                            <li class="flex items-center gap-3"><i class="fas fa-check-circle text-green-600"></i> <span>Gold Investment Rewards</span></li>
-                        </ul>
+        <!-- Subscription Plans -->
+        <section id="plans" class="py-16 md:py-24 bg-white">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="text-center mb-12 reveal">
+                    <span class="text-green-700 font-bold tracking-widest uppercase text-[10px] border border-green-200 px-3 py-1 rounded-full bg-green-50">Subscriptions</span>
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mt-4">Our Harvest Plans</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-3xl shadow-lg border border-gray-100 p-6 md:p-8 reveal hover:border-green-300 transition-all flex flex-col">
+                        <div class="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-4"><i class="fas fa-carrot"></i></div>
+                        <h3 class="text-xl font-bold text-gray-900">Daily Essentials</h3>
+                        <p class="text-gray-500 text-xs mt-2 mb-6 flex-grow">Perfect for small families. Basic veggies for daily curries (4 deliveries/mo).</p>
+                        <div class="text-2xl font-bold text-gray-900 mb-6">₹1,499<span class="text-xs text-gray-400 font-normal">/mo</span></div>
+                        <button onclick="addToCart('sub-1')" class="w-full py-3 border-2 border-green-600 text-green-700 font-bold rounded-xl text-sm">Subscribe</button>
+                    </div>
+                    
+                    <div class="bg-white rounded-3xl shadow-2xl border-2 border-green-500 p-6 md:p-8 reveal transform md:scale-105 z-10 flex flex-col">
+                        <div class="h-10 w-10 bg-green-600 rounded-full flex items-center justify-center text-white mb-4"><i class="fas fa-seedling"></i></div>
+                        <h3 class="text-xl font-bold text-gray-900">Family Wealth</h3>
+                        <p class="text-gray-600 text-xs mt-2 mb-6 flex-grow">Complete veggie box + <strong>Double Gold Reward (10%)</strong>.</p>
+                        <div class="text-2xl font-bold text-gray-900 mb-6">₹2,999<span class="text-xs text-gray-400 font-normal">/mo</span></div>
+                        <button onclick="addToCart('sub-2')" class="w-full py-3 bg-green-600 text-white font-bold rounded-xl text-sm shadow-lg">Get Featured Plan</button>
+                    </div>
+
+                    <div class="bg-white rounded-3xl shadow-lg border border-gray-100 p-6 md:p-8 reveal hover:border-green-300 transition-all flex flex-col">
+                        <div class="h-10 w-10 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600 mb-4"><i class="fas fa-crown"></i></div>
+                        <h3 class="text-xl font-bold text-gray-900">Legacy Builder</h3>
+                        <p class="text-gray-500 text-xs mt-2 mb-6 flex-grow">Bulk produce for large families + Priority Harvest Delivery.</p>
+                        <div class="text-2xl font-bold text-gray-900 mb-6">₹4,999<span class="text-xs text-gray-400 font-normal">/mo</span></div>
+                        <button onclick="addToCart('sub-3')" class="w-full py-3 border-2 border-green-600 text-green-700 font-bold rounded-xl text-sm">Subscribe</button>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Gold Strategy -->
-        <section id="gold-sip" class="py-24 bg-gray-50 relative overflow-hidden">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                <div class="text-center mb-20 reveal"><span class="text-yellow-700 font-bold tracking-widest uppercase text-xs border border-yellow-200 px-3 py-1 rounded-full bg-white">Financial Wellness</span><h2 class="text-4xl md:text-5xl font-bold text-gray-900 mt-4 mb-4">Invest While You Eat</h2><p class="max-w-2xl mx-auto text-gray-600 text-lg">Don't settle for expiring cashback points. Build a real asset portfolio.</p></div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-                    <div class="bg-white p-10 rounded-3xl border border-gray-100 reveal hover:shadow-xl transition duration-300 group"><div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center text-green-600 text-2xl mb-6 group-hover:scale-110 transition"><i class="fas fa-shopping-bag"></i></div><h3 class="text-xl font-bold text-gray-900 mb-2">1. Order Weekly</h3><p class="text-gray-600">Buy your kitchen essentials from us.</p></div>
-                    <div onclick="switchView('account')" class="bg-white p-10 rounded-3xl shadow-xl border-2 border-yellow-400 reveal transform md:-translate-y-4 relative z-10 cursor-pointer hover:scale-105 transition-transform duration-300 group"><div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full shadow-sm">CLICK TO VIEW VAULT</div><div class="w-16 h-16 gold-gradient rounded-2xl flex items-center justify-center text-white text-2xl mb-6 shadow-md animate-pulse"><i class="fas fa-magic"></i></div><h3 class="text-xl font-bold text-gray-900 mb-2">2. We Buy Gold</h3><p class="text-gray-600">5% automatically converted to 24K Digital Gold.</p></div>
-                    <div class="bg-white p-10 rounded-3xl border border-gray-100 reveal hover:shadow-xl transition duration-300 group"><div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 text-2xl mb-6 group-hover:scale-110 transition"><i class="fas fa-chart-line"></i></div><h3 class="text-xl font-bold text-gray-900 mb-2">3. Wealth Grows</h3><p class="text-gray-600">Secure vault storage. Redeem anytime.</p></div>
+        <!-- Gold SIP Logic Card -->
+        <section id="gold-sip" class="py-16 md:py-24 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="text-center mb-12 reveal">
+                    <span class="text-yellow-700 font-bold tracking-widest uppercase text-[10px] border border-yellow-200 px-3 py-1 rounded-full bg-white">Wealth Building</span>
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mt-4">The Gold Strategy</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-8 rounded-3xl border border-gray-100 reveal">
+                        <div class="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center text-green-600 mb-6"><i class="fas fa-shopping-bag"></i></div>
+                        <h3 class="text-lg font-bold">1. Order Weekly</h3>
+                        <p class="text-gray-500 text-xs mt-2">Buy your kitchen essentials from GreenGold Market.</p>
+                    </div>
+                    <div onclick="switchView('account')" class="bg-white p-8 rounded-3xl shadow-xl border-2 border-yellow-400 reveal cursor-pointer relative group">
+                        <div class="w-12 h-12 gold-gradient rounded-2xl flex items-center justify-center text-white mb-6 animate-pulse"><i class="fas fa-magic"></i></div>
+                        <h3 class="text-lg font-bold">2. Auto-Invest</h3>
+                        <p class="text-gray-500 text-xs mt-2">5% of your spend is instantly converted into 24K Digital Gold in your Vault.</p>
+                        <span class="text-[10px] font-bold text-yellow-600 mt-4 block underline group-hover:text-yellow-800">CLICK TO VIEW VAULT</span>
+                    </div>
+                    <div class="bg-white p-8 rounded-3xl border border-gray-100 reveal">
+                        <div class="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 mb-6"><i class="fas fa-chart-line"></i></div>
+                        <h3 class="text-lg font-bold">3. Wealth Grows</h3>
+                        <p class="text-gray-500 text-xs mt-2">Accumulate gold grams with every meal. Redeem for physical gold or cash.</p>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- Market & AI -->
-        <section id="market" class="py-24 bg-white scroll-mt-20">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col md:flex-row justify-between items-end mb-12 border-b pb-6 border-gray-100 reveal">
-                    <div><span class="text-green-700 font-bold tracking-widest uppercase text-xs">The Market</span><h3 class="text-4xl font-bold text-gray-900 mt-2">Fresh Harvest</h3><p class="text-gray-600 mt-2">Picked at 5:00 AM.</p></div>
-                    <div class="mt-4 md:mt-0"><span class="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg font-bold text-sm flex items-center border border-blue-100"><i class="fas fa-shield-virus mr-2"></i> Ozone Washed</span></div>
+        <!-- Farm Map Section -->
+        <section id="zones" class="py-16 md:py-24 bg-white">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="text-center mb-12 reveal">
+                    <span class="text-green-700 font-bold tracking-widest uppercase text-[10px]">Layout</span>
+                    <h2 class="text-3xl font-bold text-gray-900 mt-2">Farm Blueprint</h2>
                 </div>
-                <div id="harvest-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 reveal"></div>
-                <div class="mt-32 reveal" id="ai-concierge">
-                    <div class="text-center mb-16"><span class="inline-flex items-center gap-2 py-1 px-4 rounded-full bg-purple-50 text-purple-700 text-xs font-bold tracking-wider uppercase mb-4 border border-purple-100"><i class="fas fa-sparkles"></i> Powered by Gemini AI</span><h3 class="text-4xl font-bold text-gray-900">GreenGold Concierge</h3><p class="text-gray-600 mt-3 text-lg">Personal farm assistant. Supports Telugu! 🇮🇳</p></div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                        <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden flex flex-col hover:shadow-xl transition duration-300">
-                            <div class="bg-gradient-to-r from-purple-600 to-indigo-600 p-8 text-white"><h4 class="text-2xl font-bold mb-2">Recipe Generator</h4><p class="text-purple-100 opacity-90">Type ingredients (Eng/Telugu), get recipe.</p></div>
-                            <div class="p-8 flex-grow flex flex-col bg-gray-50"><textarea id="recipe-ingredients" rows="3" class="w-full p-4 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:outline-none transition mb-4 shadow-sm" placeholder="e.g., Brinjal, Tomato..."></textarea><button onclick="generateRecipe()" id="btn-recipe" class="w-full bg-gray-900 text-white py-4 rounded-xl font-bold hover:bg-black transition shadow-lg flex justify-center items-center gap-2"><span>Create Recipe</span> <i class="fas fa-magic"></i></button><div id="recipe-result" class="mt-6 p-6 bg-white rounded-xl border border-purple-100 text-sm text-gray-700 hidden leading-relaxed whitespace-pre-wrap shadow-inner font-medium"></div></div>
+
+                <div class="farm-map-container rounded-3xl p-4 md:p-8 bg-gray-50 reveal">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1595231712325-9c64f65c6932?q=80&w=1000" class="w-full h-40 md:h-56 object-cover" alt="Trellis">
+                            <div class="p-6">
+                                <h3 class="font-bold text-gray-900">Zone A: The Trellis</h3>
+                                <p class="text-gray-500 text-xs mt-2">Vertical GI Metal frames for Bottle Gourds and Ivy Gourds. Gravity-straight growth technology.</p>
+                            </div>
                         </div>
-                        <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden flex flex-col hover:shadow-xl transition duration-300">
-                            <div class="bg-gradient-to-r from-green-700 to-emerald-600 p-8 text-white"><h4 class="text-2xl font-bold mb-2">Ask an Expert</h4><p class="text-green-100 opacity-90">Questions about how we grow? Ask in any language.</p></div>
-                            <div class="p-8 flex-grow flex flex-col bg-gray-50"><textarea id="agri-question" rows="3" class="w-full p-4 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:outline-none transition mb-4 shadow-sm" placeholder="e.g., Why do you cover the soil?"></textarea><button onclick="askAgronomist()" id="btn-agri" class="w-full bg-gray-900 text-white py-4 rounded-xl font-bold hover:bg-black transition shadow-lg flex justify-center items-center gap-2"><span>Ask Question</span> <i class="fas fa-comment-dots"></i></button><div id="agri-result" class="mt-6 p-6 bg-white rounded-xl border border-green-100 text-sm text-gray-700 hidden leading-relaxed whitespace-pre-wrap shadow-inner font-medium"></div></div>
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1592841200221-a6898f307baa?q=80&w=1000" class="w-full h-40 md:h-56 object-cover" alt="Beds">
+                            <div class="p-6">
+                                <h3 class="font-bold text-gray-900">Zone B: Raised Beds</h3>
+                                <p class="text-gray-500 text-xs mt-2">Silver-mulched beds for Tomatoes and Chili. Reflective tech for uniform fruit color.</p>
+                            </div>
                         </div>
                     </div>
+                    <button onclick="switchView('production')" class="mt-8 w-full bg-gray-900 text-white py-3 rounded-full text-xs font-bold shadow-lg">See Full Production Journey & Metrics</button>
                 </div>
+            </div>
+        </section>
+
+        <!-- Market Grid -->
+        <section id="market" class="py-16 md:py-24 bg-white">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-10 reveal">
+                    <div><h3 class="text-3xl font-bold text-gray-900">The Market</h3><p class="text-gray-500 text-sm">Harvested at 5:00 AM Today.</p></div>
+                    <span class="hidden md:flex bg-blue-50 text-blue-700 px-4 py-2 rounded-lg font-bold text-xs items-center border border-blue-100"><i class="fas fa-shield-virus mr-2"></i> Ozone Washed</span>
+                </div>
+                <div id="harvest-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 reveal"></div>
             </div>
         </section>
         
-        <footer id="contact" class="bg-gray-900 text-white py-20 border-t border-gray-800"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center"><p>&copy; 2026 Project GreenGold.</p></div></footer>
+        <footer class="bg-gray-900 text-white py-12 md:py-20 text-center"><p class="text-gray-500 text-sm px-6">&copy; 2026 Project GreenGold. Eat Fresh, Grow Gold.</p></footer>
     </div>
 
-    <!-- ================= VIEW 2: AUTH PAGE ================= -->
-    <div id="auth-view" class="view-section hidden bg-gray-50 min-h-screen flex flex-col justify-center py-20">
-        <div class="max-w-md w-full mx-auto px-6">
+    <!-- VIEW 2: AUTH PAGE -->
+    <div id="auth-view" class="view-section hidden bg-gray-50 flex flex-col justify-center px-4 py-20">
+        <div class="max-w-md w-full mx-auto">
             <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <div class="flex border-b border-gray-100"><button onclick="toggleAuthMode('login')" id="tab-login" class="w-1/2 py-4 text-center font-medium auth-toggle-active">Sign In</button><button onclick="toggleAuthMode('register')" id="tab-register" class="w-1/2 py-4 text-center font-medium text-gray-500">Register</button></div>
-                <div class="p-8">
-                    <!-- Login Form -->
-                    <form id="form-login" class="space-y-6" onsubmit="handleLogin(event)">
-                        <div><label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label><input type="email" id="login-email" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none transition"></div>
-                        <div><label class="block text-sm font-medium text-gray-700 mb-1">Password</label><input type="password" id="login-pass" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none transition"></div>
-                        <button type="submit" class="w-full bg-green-700 text-white font-bold py-3 rounded-lg hover:bg-green-800 transition shadow-lg">Sign In</button>
+                <div class="flex border-b border-gray-100">
+                    <button onclick="toggleAuthMode('login')" id="tab-login" class="w-1/2 py-4 text-center font-medium auth-toggle-active">Sign In</button>
+                    <button onclick="toggleAuthMode('register')" id="tab-register" class="w-1/2 py-4 text-center font-medium text-gray-500">Register</button>
+                </div>
+                <div class="p-6 md:p-8">
+                    <form id="form-login" class="space-y-4" onsubmit="handleLogin(event)">
+                        <input type="email" id="login-email" placeholder="Email" required class="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm">
+                        <input type="password" id="login-pass" placeholder="Password" required class="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm">
+                        <button type="submit" class="w-full bg-green-700 text-white font-bold py-3 rounded-lg text-sm shadow-md">Sign In</button>
                     </form>
-
-                    <!-- Register Form -->
                     <form id="form-register" class="space-y-4 hidden" onsubmit="handleRegister(event)">
-                        <div><label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label><input type="text" id="reg-name" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none transition"></div>
-                        <div><label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label><input type="email" id="reg-email" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none transition"></div>
-                        <div><label class="block text-sm font-medium text-gray-700 mb-1">Mobile Number (For Gold SIP)</label><input type="tel" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none transition"></div>
-                        <div><label class="block text-sm font-medium text-gray-700 mb-1">Create Password</label><input type="password" id="reg-pass" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:outline-none transition"></div>
-                        <button type="submit" class="w-full bg-yellow-600 text-white font-bold py-3 rounded-lg hover:bg-yellow-700 transition shadow-lg">Create Account</button>
+                        <input type="text" id="reg-name" placeholder="Full Name" required class="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm">
+                        <input type="email" id="reg-email" placeholder="Email" required class="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm">
+                        <input type="password" id="reg-pass" placeholder="Password" required class="w-full px-4 py-3 rounded-lg border border-gray-200 text-sm">
+                        <button type="submit" class="w-full bg-yellow-600 text-white font-bold py-3 rounded-lg text-sm shadow-md">Create Account</button>
                     </form>
-
-                    <!-- Google Sign In -->
-                    <div class="mt-6">
-                        <div class="relative">
-                            <div class="absolute inset-0 flex items-center">
-                                <div class="w-full border-t border-gray-300"></div>
-                            </div>
-                            <div class="relative flex justify-center text-sm">
-                                <span class="px-2 bg-white text-gray-500">Or continue with</span>
-                            </div>
-                        </div>
-                        <button onclick="handleGoogleLogin()" class="mt-4 w-full flex justify-center items-center gap-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 py-3 transition">
+                    <div class="mt-6 border-t pt-6">
+                        <button onclick="handleGoogleLogin()" class="w-full flex justify-center items-center gap-2 border border-gray-300 py-3 rounded-lg text-sm font-medium hover:bg-gray-50 transition">
                             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google">
                             <span>Sign in with Google</span>
                         </button>
                     </div>
                 </div>
             </div>
-            
-            <p class="text-center text-sm text-gray-500 mt-6 cursor-pointer hover:underline" onclick="switchView('home')">
-                <i class="fas fa-arrow-left mr-1"></i> Back to Home
-            </p>
+            <p class="text-center text-xs text-gray-400 mt-6 cursor-pointer" onclick="switchView('home')">Back to Home</p>
         </div>
     </div>
 
-    <!-- ================= VIEW 3: ACCOUNT & SIP PAGE ================= -->
-    <div id="account-view" class="view-section hidden bg-gray-50 min-h-screen pt-28 pb-20">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- VIEW 3: ACCOUNT DASHBOARD -->
+    <div id="account-view" class="view-section hidden bg-gray-50 pt-24 pb-12">
+        <div class="max-w-6xl mx-auto px-4">
             <div class="flex justify-between items-center mb-8">
-                <div><h2 class="text-3xl font-bold text-gray-900">My Dashboard</h2><p class="text-gray-600">Welcome back, <span id="user-name-display" class="font-bold text-green-700">User</span>!</p></div>
-                <button onclick="handleLogout()" class="text-red-600 font-bold border border-red-200 px-4 py-2 rounded-lg hover:bg-red-50">Logout</button>
+                <div><h2 class="text-2xl md:text-3xl font-bold text-gray-900">Dashboard</h2><p class="text-gray-500 text-xs">Welcome back, <span id="user-name-display" class="font-bold text-green-700">User</span></p></div>
+                <button onclick="handleLogout()" class="text-red-500 text-xs font-bold">Logout</button>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden flex flex-col justify-between">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 mb-8">
+                <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
                     <div class="relative z-10">
-                        <div class="flex justify-between items-start"><p class="text-yellow-100 text-sm font-bold uppercase tracking-wider mb-1">Vault Balance</p><div class="bg-black/30 backdrop-blur px-2 py-1 rounded text-xs font-mono flex items-center gap-2"><span class="live-dot"></span><span id="live-gold-rate">Rate: Loading...</span></div></div>
-                        <h3 class="text-4xl font-extrabold mb-2 mt-2" id="vault-balance">0.000g</h3>
-                        <p class="text-yellow-100 text-sm">Value: <span id="vault-value">₹0.00</span></p>
+                        <div class="flex justify-between items-start"><p class="text-yellow-100 text-[10px] font-bold uppercase tracking-wider">Vault Balance</p><span id="live-gold-rate" class="text-[9px] bg-black/20 px-2 py-1 rounded">₹7,250/g</span></div>
+                        <h3 class="text-3xl font-extrabold my-2" id="vault-balance">0.000g</h3>
+                        <p class="text-yellow-100 text-xs" id="vault-value">₹0.00</p>
                     </div>
-                    <i class="fas fa-coins absolute -bottom-6 -right-6 text-8xl text-white opacity-20"></i>
+                    <i class="fas fa-coins absolute -bottom-6 -right-6 text-8xl text-white opacity-10"></i>
                 </div>
-                <div class="bg-white rounded-2xl p-6 shadow-md border border-gray-100">
-                    <h4 class="font-bold text-gray-900 mb-4"><i class="fas fa-file-invoice text-green-600 mr-2"></i> Active SIP</h4>
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h4 class="font-bold text-gray-900 text-sm mb-4">Active Gold SIP</h4>
                     <div id="sip-status-display">
-                        <p class="text-gray-500 text-sm mb-4">No active SIP found.</p>
-                        <div class="flex items-center gap-2">
-                            <span class="text-gray-400">₹</span>
-                            <input type="number" id="sip-amount" value="500" class="w-20 bg-gray-50 border border-gray-300 rounded px-2 py-1 text-sm font-bold" min="100">
-                            <button onclick="activateSIP()" class="bg-yellow-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-yellow-700">Start</button>
-                        </div>
+                        <div class="flex items-center gap-2"><span class="text-gray-400">₹</span><input type="number" id="sip-amount" value="500" class="w-20 bg-gray-50 border border-gray-300 rounded px-2 py-1 text-sm font-bold"><button onclick="activateSIP()" class="bg-yellow-600 text-white px-3 py-1 rounded text-[10px] font-bold">Start</button></div>
                     </div>
                 </div>
             </div>
             
-            <!-- ORDER HISTORY (NEW) -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
-                <div class="p-6 border-b border-gray-100"><h3 class="font-bold text-gray-900 text-lg">My Orders</h3></div>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+                <div class="p-4 md:p-6 border-b border-gray-100 flex justify-between items-center"><h3 class="font-bold text-gray-900">Order History</h3></div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-gray-50 text-gray-500 text-xs uppercase font-bold"><tr><th class="px-6 py-4">Date</th><th class="px-6 py-4">Items</th><th class="px-6 py-4">Total</th><th class="px-6 py-4">Status</th></tr></thead>
-                        <tbody class="divide-y divide-gray-100 text-sm" id="user-orders-body"></tbody>
+                    <table class="w-full text-left text-xs md:text-sm">
+                        <thead class="bg-gray-50 text-gray-400 font-bold uppercase"><tr><th class="px-6 py-4">Date</th><th class="px-6 py-4">Items</th><th class="px-6 py-4 text-right">Amount</th><th class="px-6 py-4">Status</th></tr></thead>
+                        <tbody class="divide-y divide-gray-100" id="user-orders-body"></tbody>
                     </table>
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"><div class="p-6 border-b border-gray-100"><h3 class="font-bold text-gray-900 text-lg">Vault & SIP History</h3></div><div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-50 text-gray-500 text-xs uppercase font-bold"><tr><th class="px-6 py-4">Date</th><th class="px-6 py-4">Type</th><th class="px-6 py-4">Gold (g)</th><th class="px-6 py-4">Status</th></tr></thead><tbody class="divide-y divide-gray-100 text-sm" id="vault-history-body"></tbody></table></div></div>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-4 md:p-6 border-b border-gray-100"><h3 class="font-bold text-gray-900">Vault Activity</h3></div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs md:text-sm">
+                        <thead class="bg-gray-50 text-gray-400 font-bold uppercase"><tr><th class="px-6 py-4">Date</th><th class="px-6 py-4">Type</th><th class="px-6 py-4 text-right">Gold (g)</th></tr></thead>
+                        <tbody class="divide-y divide-gray-100" id="vault-history-body"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- VIEW 4: PRODUCTION & METRICS PAGE -->
-    <div id="production-view" class="view-section hidden bg-gray-50 min-h-screen pt-28 pb-20">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="mb-10">
-                <button onclick="switchView('home', 'zones')" class="text-green-700 font-bold hover:underline mb-4 inline-block"><i class="fas fa-arrow-left mr-2"></i> Back to Farm</button>
-                <h2 class="text-4xl font-bold text-gray-900">Our Production Journey</h2>
-                <p class="text-gray-600 mt-2 text-lg">Transparent. Data-driven. Chemical-free.</p>
+    <!-- VIEW 4: PRODUCTION JOURNEY -->
+    <div id="production-view" class="view-section hidden bg-gray-50 pt-24 pb-12">
+        <div class="max-w-6xl mx-auto px-4">
+            <button onclick="switchView('home', 'zones')" class="text-green-700 font-bold text-xs mb-4"><i class="fas fa-arrow-left"></i> Back to Farm</button>
+            <h2 class="text-3xl font-bold text-gray-900 mb-8">Production Flow</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+                <div class="metric-block text-center"><p class="text-gray-400 text-[10px] uppercase font-bold mb-2">Moisture</p><h4 class="text-2xl font-bold text-blue-600">68%</h4></div>
+                <div class="metric-block text-center"><p class="text-gray-400 text-[10px] uppercase font-bold mb-2">Temp</p><h4 class="text-2xl font-bold text-orange-600">28°C</h4></div>
+                <div class="metric-block text-center"><p class="text-gray-400 text-[10px] uppercase font-bold mb-2">Harvest</p><h4 class="text-2xl font-bold text-green-600">45Kg</h4></div>
+                <div class="metric-block text-center"><p class="text-gray-400 text-[10px] uppercase font-bold mb-2">Ozone</p><h4 class="text-2xl font-bold text-purple-600">Active</h4></div>
             </div>
-
-            <!-- Live Metrics Dashboard -->
-            <div class="mb-16">
-                <h3 class="text-xl font-bold text-gray-800 mb-6 border-l-4 border-green-500 pl-3">Live Farm Metrics</h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div class="metric-block">
-                        <div class="text-gray-500 text-xs font-bold uppercase mb-2">Soil Moisture (Zone A)</div>
-                        <div class="text-3xl font-bold text-blue-600">68%</div>
-                        <div class="text-xs text-green-600 mt-1"><i class="fas fa-check-circle"></i> Optimal</div>
-                    </div>
-                    <div class="metric-block">
-                        <div class="text-gray-500 text-xs font-bold uppercase mb-2">Air Temperature</div>
-                        <div class="text-3xl font-bold text-orange-500">28°C</div>
-                        <div class="text-xs text-gray-400 mt-1">Humidity: 45%</div>
-                    </div>
-                    <div class="metric-block">
-                        <div class="text-gray-500 text-xs font-bold uppercase mb-2">Harvest Today</div>
-                        <div class="text-3xl font-bold text-green-600">45 Kg</div>
-                        <div class="text-xs text-gray-400 mt-1">Tomatoes & Gourds</div>
-                    </div>
-                    <div class="metric-block">
-                        <div class="text-gray-500 text-xs font-bold uppercase mb-2">Ozone Status</div>
-                        <div class="text-3xl font-bold text-purple-600">Active</div>
-                        <div class="text-xs text-purple-400 mt-1">Cleaning Cycle ON</div>
-                    </div>
+            <div class="bg-gray-900 rounded-3xl p-8 md:p-12 text-white relative overflow-hidden">
+                <h3 class="text-2xl font-bold mb-4 text-yellow-400">Our Philosophy</h3>
+                <p class="text-base text-gray-300 leading-relaxed mb-6 italic">"Started with friends and expanding slowly. Limited but healthy production."</p>
+                <div class="p-6 bg-white/5 rounded-2xl border border-white/10 text-sm text-gray-400">
+                    Eliminating the middlemen allows us to pass 40% savings back to you as <strong>24K Gold</strong>. Shared prosperity for Hyderabad.
                 </div>
-            </div>
-
-            <!-- Process Flow -->
-            <div class="mb-16">
-                <h3 class="text-xl font-bold text-gray-800 mb-6 border-l-4 border-blue-500 pl-3">The Process Flow</h3>
-                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                    <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-center">
-                        <div class="flex-1">
-                            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-700 text-2xl mx-auto mb-3"><i class="fas fa-seedling"></i></div>
-                            <h4 class="font-bold">1. Seeding</h4>
-                            <p class="text-xs text-gray-500 mt-1">Coco-peat trays</p>
-                        </div>
-                        <div class="hidden md:block w-12 h-1 bg-gray-200"></div>
-                        <div class="flex-1">
-                            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-700 text-2xl mx-auto mb-3"><i class="fas fa-network-wired"></i></div>
-                            <h4 class="font-bold">2. IoT Care</h4>
-                            <p class="text-xs text-gray-500 mt-1">Drip irrigation</p>
-                        </div>
-                        <div class="hidden md:block w-12 h-1 bg-gray-200"></div>
-                        <div class="flex-1">
-                            <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center text-orange-700 text-2xl mx-auto mb-3"><i class="fas fa-hand-holding-heart"></i></div>
-                            <h4 class="font-bold">3. Harvest</h4>
-                            <p class="text-xs text-gray-500 mt-1">5:00 AM Picking</p>
-                        </div>
-                        <div class="hidden md:block w-12 h-1 bg-gray-200"></div>
-                        <div class="flex-1">
-                            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 text-2xl mx-auto mb-3"><i class="fas fa-shower"></i></div>
-                            <h4 class="font-bold">4. Ozone Wash</h4>
-                            <p class="text-xs text-gray-500 mt-1">99% Germ Free</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- The Philosophy -->
-            <div class="bg-gray-900 rounded-3xl p-10 text-white relative overflow-hidden">
-                <div class="relative z-10 max-w-3xl">
-                    <h3 class="text-3xl font-bold mb-4 text-yellow-400">Our Profit Philosophy</h3>
-                    <p class="text-lg leading-relaxed text-gray-300 mb-6">
-                        "We are onto limited but healthy, fresh production. We wanted to share our products, starting with friends and expanding slowly."
-                    </p>
-                    <div class="bg-white/10 backdrop-blur-md p-6 rounded-xl border border-white/20">
-                        <h4 class="font-bold text-white mb-2">How can we afford the Gold SIP?</h4>
-                        <p class="text-sm text-gray-300">
-                            By selling directly to you, we eliminate the middlemen (mandi agents, wholesalers, retailers) who typically take 40-50% of the profit. We simply pass a portion of those savings back to you as <strong>24K Gold</strong>. It's not a discount; it's shared prosperity.
-                        </p>
-                    </div>
-                </div>
-                <i class="fas fa-hands-helping absolute bottom-0 right-0 text-[12rem] text-white opacity-5"></i>
             </div>
         </div>
     </div>
@@ -386,7 +350,7 @@
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, addDoc, onSnapshot, query, orderBy, updateDoc, increment, where } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
-        // 1. CONFIGURATION
+        // 1. FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyCn97KMDw04cR7BI12WIrg9-5PRiJ8vjMo",
             authDomain: "projectgreengold-79577.firebaseapp.com",
@@ -404,50 +368,53 @@
             db = getFirestore(app);
             
             // --- SECRET ADMIN LOGIC (8 Taps) ---
-            let tapCount = 0;
-            let tapTimer;
+            let tapCount = 0; let tapTimer;
             const logo = document.getElementById("logo-btn");
             if (logo) {
                 logo.addEventListener('click', (e) => {
-                    tapCount++;
-                    clearTimeout(tapTimer);
+                    tapCount++; clearTimeout(tapTimer);
                     tapTimer = setTimeout(() => { tapCount = 0; }, 1000); 
-
                     if (tapCount === 8) {
-                        e.preventDefault(); e.stopPropagation();
-                        // Direct Redirect - No PIN required as per request
-                        window.location.href = "admin.html"; 
-                    } else if(tapCount === 1) {
-                        // Allow normal click behavior (Go Home)
-                        switchView('home');
-                    }
+                        const pin = prompt("Admin PIN:");
+                        if (pin === "2026") window.location.href = "admin.html"; 
+                    } else if(tapCount === 1) { switchView('home'); }
                 });
             }
-        } catch (e) { console.error("Firebase Init Error:", e); }
+        } catch (e) { console.error(e); }
 
-        // State variables
-        let currentUser = null;
-        let cart = [];
-        let goldRate = 7250; 
+        let currentUser = null; let cart = []; let goldRate = 7250; 
 
-        // Authentication Functions
+        // Products List (Unified)
+        const productsList = [
+            { "name":"Cabbage", "photo_url":"https://www.freepngimg.com/thumb/cabbage/4-cabbage-png-image.png", "id":2, "price": 30 },
+            { "name":"Tomato", "photo_url":"https://www.freepngimg.com/thumb/tomato/2-tomato-png-image.png", "id":13, "price": 5 },
+            { "name":"Capsicum", "photo_url":"https://www.freepngimg.com/thumb/pepper/13-pepper-png-image.png", "id":7, "price": 5 },
+            { "name":"Carrot", "photo_url":"https://www.freepngimg.com/thumb/carrot/1-carrot-png-image.png", "id":18, "price": 60 },
+            { "name":"Potato", "photo_url":"https://www.freepngimg.com/thumb/potato/7-potato-png-images-pictures-download-thumb.png", "id":20, "price": 80 },
+            { "name":"Broccoli", "photo_url":"https://www.freepngimg.com/thumb/broccoli/5-broccoli-png-image.png", "id":16, "price": 50 },
+            { "name":"Onion", "photo_url":"https://www.freepngimg.com/thumb/onion/10-red-onion-png-image-thumb.png", "id":19, "price": 120 },
+            { "name":"Corn", "photo_url":"https://www.freepngimg.com/thumb/corn/2-corn-png-image.png", "id":21, "price": 20 },
+            { "name":"Plan: Essentials", "id":"sub-1", "price": 1499 },
+            { "name":"Plan: Family Wealth", "id":"sub-2", "price": 2999 },
+            { "name":"Plan: Legacy Builder", "id":"sub-3", "price": 4999 }
+        ];
+
+        // Auth Functions
         window.handleRegister = async (e) => {
             e.preventDefault();
             try {
                 const cred = await createUserWithEmailAndPassword(auth, document.getElementById('reg-email').value, document.getElementById('reg-pass').value);
-                await setDoc(doc(db, "users", cred.user.uid), {
-                    name: document.getElementById('reg-name').value, email: document.getElementById('reg-email').value, joinedAt: new Date(), goldBalance: 0
-                });
-                showToast("Registered!"); switchView('account');
-            } catch (err) { alert("Error: " + err.message); }
+                await setDoc(doc(db, "users", cred.user.uid), { name: document.getElementById('reg-name').value, email: document.getElementById('reg-email').value, joinedAt: new Date(), goldBalance: 0 });
+                switchView('account');
+            } catch (err) { alert(err.message); }
         };
 
         window.handleLogin = async (e) => {
             e.preventDefault();
             try {
                 await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-pass').value);
-                showToast("Logged in"); switchView('account');
-            } catch (err) { alert("Login failed: " + err.message); }
+                switchView('account');
+            } catch (err) { alert(err.message); }
         };
 
         window.handleGoogleLogin = async () => {
@@ -455,63 +422,44 @@
             try {
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
-                
-                // Check if user exists, if not create record
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (!userDoc.exists()) {
-                    await setDoc(doc(db, "users", user.uid), {
-                        name: user.displayName,
-                        email: user.email,
-                        joinedAt: new Date(),
-                        goldBalance: 0
-                    });
+                    await setDoc(doc(db, "users", user.uid), { name: user.displayName, email: user.email, joinedAt: new Date(), goldBalance: 0 });
                 }
-                
-                showToast("Welcome, " + user.displayName);
                 switchView('account');
-            } catch (error) {
-                console.error(error);
-                if (error.code === 'auth/unauthorized-domain') {
-                    alert("Configuration Error: This domain is not authorized for Google Sign-In.\n\nFix: Go to Firebase Console -> Authentication -> Settings -> Authorized Domains and add this website's domain.");
-                } else {
-                    alert("Google Sign In Error: " + error.message);
-                }
-            }
+            } catch (error) { alert(error.message); }
         };
 
-        window.handleLogout = async () => { await signOut(auth); switchView('home'); showToast("Logged out"); };
+        window.handleLogout = async () => { await signOut(auth); switchView('home'); };
 
-        if(auth) {
-            onAuthStateChanged(auth, async (user) => {
-                currentUser = user;
-                const navAuth = document.getElementById('nav-auth-container');
-                const mobileAuth = document.getElementById('mobile-auth-btn');
-                if (user) {
-                    if(navAuth) navAuth.innerHTML = `<button onclick="switchView('account')" class="bg-green-50 text-green-700 px-4 py-2 rounded-full font-bold text-sm border border-green-200">My Account</button>`;
-                    if(mobileAuth) mobileAuth.innerText = "My Dashboard";
-                    const snap = await getDoc(doc(db, "users", user.uid));
-                    if(snap.exists()) {
-                        document.getElementById('user-name-display').innerText = snap.data().name;
-                        updateVaultUI(user.uid);
-                    }
-                } else {
-                    if(navAuth) navAuth.innerHTML = `<button onclick="switchView('auth')" class="bg-gray-900 text-white px-5 py-2 rounded-full text-sm font-bold">Login</button>`;
-                    if(mobileAuth) mobileAuth.innerText = "Login / Register";
-                }
-            });
-        }
+        onAuthStateChanged(auth, async (user) => {
+            currentUser = user;
+            const navAuth = document.getElementById('nav-auth-container');
+            const mobileAuth = document.getElementById('mobile-auth-btn');
+            if (user) {
+                if(navAuth) navAuth.innerHTML = `<button onclick="switchView('account')" class="bg-green-50 text-green-700 px-4 py-2 rounded-full font-bold text-xs">Account</button>`;
+                if(mobileAuth) mobileAuth.innerText = "Dashboard";
+                updateVaultUI(user.uid);
+                const snap = await getDoc(doc(db, "users", user.uid));
+                if(snap.exists()) document.getElementById('user-name-display').innerText = snap.data().name;
+            } else {
+                if(navAuth) navAuth.innerHTML = `<button onclick="switchView('auth')" class="bg-gray-900 text-white px-5 py-2 rounded-full text-xs">Login</button>`;
+                if(mobileAuth) mobileAuth.innerText = "Login / Register";
+            }
+        });
 
-        // Logic
-        window.activateSIP = async () => {
-            if (!currentUser) return alert("Please login");
-            const amount = document.getElementById('sip-amount').value;
+        // Checkout & UI Sync
+        window.checkout = async () => {
+            if(!currentUser) { switchView('auth'); toggleCart(); return; }
+            if(cart.length===0) return;
             try {
-                await addDoc(collection(db, "users", currentUser.uid, "sips"), { amount, status: "ACTIVE", createdAt: new Date() });
-                const gold = (amount/goldRate).toFixed(4);
-                await updateDoc(doc(db, "users", currentUser.uid), { goldBalance: increment(parseFloat(gold)) });
-                await addDoc(collection(db, "users", currentUser.uid, "vault_history"), { type: "SIP Bonus", grams: parseFloat(gold), date: new Date() });
-                showToast("SIP Activated!");
-            } catch (e) { alert("Error"); }
+                const total = cart.reduce((a,b)=>a+(b.price*b.count),0);
+                const gold = parseFloat((total*0.05/goldRate).toFixed(4));
+                await addDoc(collection(db,"orders"), { userId:currentUser.uid, userName: document.getElementById('user-name-display').innerText, items:cart.map(i=>`${i.name}(${i.count})`), total, status:"Pending", date:new Date() });
+                await updateDoc(doc(db,"users",currentUser.uid), { goldBalance: increment(gold) });
+                await addDoc(collection(db,"users",currentUser.uid,"vault_history"), { type:"Order Credit", grams:gold, date:new Date() });
+                showToast(`Ordered! +${gold}g Gold`); cart=[]; renderCart(); toggleCart();
+            } catch(e) { console.error(e); }
         };
 
         function updateVaultUI(uid) {
@@ -521,174 +469,75 @@
                 document.getElementById('vault-value').innerText = "₹" + (bal * goldRate).toFixed(2);
             });
             onSnapshot(query(collection(db, "users", uid, "vault_history"), orderBy("date", "desc")), (snap) => {
-                document.getElementById('vault-history-body').innerHTML = snap.docs.map(d => 
-                    `<tr><td class="px-6 py-4 text-gray-500">${d.data().date.toDate().toLocaleDateString()}</td><td class="px-6 py-4 font-bold">${d.data().type}</td><td class="px-6 py-4 text-green-600">+${d.data().grams}g</td><td class="px-6 py-4">Success</td></tr>`
-                ).join('');
+                document.getElementById('vault-history-body').innerHTML = snap.docs.map(d => `<tr><td class="px-6 py-4">${d.data().date.toDate().toLocaleDateString()}</td><td class="px-6 py-4 font-bold text-gray-700">${d.data().type}</td><td class="px-6 py-4 text-right text-green-600">+${d.data().grams}g</td></tr>`).join('');
             });
-            onSnapshot(query(collection(db, "users", uid, "sips"), orderBy("createdAt", "desc")), (snap) => {
-                if(!snap.empty) document.getElementById('sip-status-display').innerHTML = `<div class="text-green-600 font-bold">Active: ₹${snap.docs[0].data().amount}/mo</div>`;
-            });
-            
-            // Listen for User Orders
             onSnapshot(query(collection(db, "orders"), where("userId", "==", uid)), (snap) => {
                 const tbody = document.getElementById('user-orders-body');
-                if (snap.empty) {
-                    tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400">No orders yet.</td></tr>';
-                    return;
-                }
-                
-                // Manual Sort in JS to fix missing index issue
-                const sortedDocs = snap.docs.sort((a,b) => b.data().date.toMillis() - a.data().date.toMillis());
-                
-                tbody.innerHTML = sortedDocs.map(doc => {
+                const sorted = snap.docs.sort((a,b) => b.data().date.toMillis() - a.data().date.toMillis());
+                tbody.innerHTML = sorted.map(doc => {
                     const d = doc.data();
-                    const date = d.date?.toDate ? d.date.toDate().toLocaleDateString() : 'N/A';
-                    const statusColor = d.status === 'Delivered' ? 'text-green-600 bg-green-50' : 'text-yellow-600 bg-yellow-50';
-                    return `<tr>
-                        <td class="px-6 py-4 text-gray-500">${date}</td>
-                        <td class="px-6 py-4 text-gray-800 font-medium truncate max-w-xs" title="${d.items.join(', ')}">${d.items.join(', ')}</td>
-                        <td class="px-6 py-4 font-bold">₹${d.total}</td>
-                        <td class="px-6 py-4"><span class="px-2 py-1 rounded text-xs font-bold ${statusColor}">${d.status}</span></td>
-                    </tr>`;
+                    return `<tr><td class="px-6 py-4">${d.date.toDate().toLocaleDateString()}</td><td class="px-6 py-4 truncate max-w-[120px]">${d.items.join(', ')}</td><td class="px-6 py-4 text-right font-bold">₹${d.total}</td><td class="px-6 py-4"><span class="text-[9px] px-2 py-0.5 rounded-full font-bold ${d.status==='Delivered'?'bg-green-100 text-green-700':'bg-yellow-100 text-yellow-700'}">${d.status}</span></td></tr>`;
                 }).join('');
             });
         }
 
-        // Helpers
-        setInterval(() => { goldRate = 7200 + Math.random() * 50; document.getElementById('live-gold-rate').innerText = `Rate: ₹${Math.floor(goldRate)}/g`; }, 3000);
-        
+        // Standard Logic
         window.switchView = (viewName, sectionId = null) => {
-            if (viewName === 'account' && !currentUser) { showToast("Login required"); viewName = 'auth'; }
-            
-            // Explicitly hide mobile menu on any navigation
+            if (viewName === 'account' && !currentUser) { viewName = 'auth'; }
             document.getElementById('mobile-menu').classList.add('hidden');
-
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-            const targetView = document.getElementById(viewName + '-view');
-            if(targetView) {
-                targetView.classList.remove('hidden');
-            }
-            
+            document.getElementById(viewName + '-view').classList.remove('hidden');
             if (sectionId && viewName === 'home') {
                 setTimeout(() => {
                     const section = document.getElementById(sectionId);
-                    if (section) {
-                        const navHeight = 80;
-                        const elementPosition = section.getBoundingClientRect().top + window.scrollY;
-                        const offsetPosition = elementPosition - navHeight;
-                        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
-                    }
+                    if (section) { const pos = section.getBoundingClientRect().top + window.scrollY - 80; window.scrollTo({ top: pos, behavior: "smooth" }); }
                 }, 50);
-            } else {
-                window.scrollTo(0,0);
-            }
+            } else { window.scrollTo(0,0); }
         };
-
-        window.toggleAuthMode = (mode) => {
-            document.getElementById(mode === 'login' ? 'form-login' : 'form-register').classList.remove('hidden');
-            document.getElementById(mode === 'login' ? 'form-register' : 'form-login').classList.add('hidden');
-            document.getElementById('tab-' + mode).classList.add('auth-toggle-active', 'text-green-600');
-            document.getElementById('tab-' + (mode === 'login' ? 'register' : 'login')).classList.remove('auth-toggle-active', 'text-green-600');
-        };
-        
-        window.handleMobileAuthClick = () => { if(currentUser) switchView('account'); else switchView('auth'); };
-
-        // Products & Cart
-        const productsList = [
-            { "name":"Cabbage", "photo_url":"https://www.freepngimg.com/thumb/cabbage/4-cabbage-png-image.png", "quantity":"One Unit", "id":2, "price": 30 },
-            { "name":"Tomato", "photo_url":"https://www.freepngimg.com/thumb/tomato/2-tomato-png-image.png", "quantity":"One Unit", "id":13, "price": 5 },
-            { "name":"Capsicum", "photo_url":"https://www.freepngimg.com/thumb/pepper/13-pepper-png-image.png", "quantity":"One Unit", "id":7, "price": 5 },
-            { "name":"Carrot", "photo_url":"https://www.freepngimg.com/thumb/carrot/1-carrot-png-image.png", "quantity":"One Kg", "id":18, "price": 60 },
-            { "name":"Potato", "photo_url":"https://www.freepngimg.com/thumb/potato/7-potato-png-images-pictures-download-thumb.png", "quantity":"One Bag", "id":20, "price": 80 },
-            { "name":"Broccoli", "photo_url":"https://www.freepngimg.com/thumb/broccoli/5-broccoli-png-image.png", "quantity":"One Bunch", "id":16, "price": 50 },
-            { "name":"Onion", "photo_url":"https://www.freepngimg.com/thumb/onion/10-red-onion-png-image-thumb.png", "quantity":"One Kg", "id":19, "price": 120 },
-            { "name":"Corn", "photo_url":"https://www.freepngimg.com/thumb/corn/2-corn-png-image.png", "quantity":"One Unit", "id":21, "price": 20 }
-        ];
 
         window.addToCart = (id) => {
             const p = productsList.find(x => x.id === id);
             const exist = cart.find(x => x.id === id);
             if(exist) exist.count++; else cart.push({...p, count:1});
-            document.getElementById('cart-count').innerText = cart.reduce((a,b)=>a+b.count,0);
             renderCart(); showToast("Added!");
         };
-        window.removeFromCart = (id) => { cart = cart.filter(x => x.id !== id); document.getElementById('cart-count').innerText = cart.reduce((a,b)=>a+b.count,0); renderCart(); };
+        window.removeFromCart = (id) => { cart = cart.filter(x => x.id !== id); renderCart(); };
         window.toggleCart = () => document.getElementById('cart-modal').classList.toggle('hidden');
-        
+        window.toggleAuthMode = (mode) => { document.getElementById(mode === 'login' ? 'form-login' : 'form-register').classList.remove('hidden'); document.getElementById(mode === 'login' ? 'form-register' : 'form-login').classList.add('hidden'); };
+        window.handleMobileAuthClick = () => { if(currentUser) switchView('account'); else switchView('auth'); };
+
         function renderCart() {
             const div = document.getElementById('cart-items');
+            const count = cart.reduce((a,b)=>a+b.count,0);
+            document.getElementById('mobile-cart-badge').innerText = count;
             if(cart.length===0) { div.innerHTML="<p class='text-center mt-10 text-gray-400'>Empty</p>"; document.getElementById('cart-total').innerText="₹0"; return; }
-            div.innerHTML = cart.map(i => `<div class="flex justify-between p-2 border-b"><span>${i.name} (${i.count})</span><span>₹${i.price*i.count} <button onclick="removeFromCart(${i.id})" class="text-red-500 ml-2">x</button></span></div>`).join('');
+            div.innerHTML = cart.map(i => `<div class="flex justify-between items-center py-3 border-b"><div><p class="font-bold text-sm">${i.name}</p><p class="text-[10px] text-gray-500">${i.count} Unit(s)</p></div><div class="flex items-center gap-3"><span class="font-bold">₹${i.price*i.count}</span><button onclick="removeFromCart('${i.id}')" class="text-red-500"><i class="fas fa-trash-alt"></i></button></div></div>`).join('');
             document.getElementById('cart-total').innerText = "₹" + cart.reduce((a,b)=>a+(b.price*b.count),0);
         }
 
-        window.checkout = async () => {
-            if(!currentUser) { switchView('auth'); toggleCart(); return; }
-            if(cart.length===0) return alert("Empty");
-            try {
-                const total = cart.reduce((a,b)=>a+(b.price*b.count),0);
-                const gold = parseFloat((total*0.05/goldRate).toFixed(4));
-                await addDoc(collection(db,"orders"), { userId:currentUser.uid, userName:document.getElementById('user-name-display').innerText, items:cart.map(i=>`${i.name}(${i.count})`), total, status:"Pending", date:new Date() });
-                await updateDoc(doc(db,"users",currentUser.uid), { goldBalance: increment(gold) });
-                await addDoc(collection(db,"users",currentUser.uid,"vault_history"), { type:"Purchase Credit", grams:gold, date:new Date() });
-                showToast(`Ordered! +${gold}g Gold`); cart=[]; renderCart(); toggleCart(); document.getElementById('cart-count').innerText=0;
-            } catch(e) { console.error(e); alert("Order Failed"); }
-        };
+        function showToast(msg) { const t=document.getElementById('toast'); t.innerText=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
 
-        function showToast(msg) { const t=document.getElementById('toast'); document.getElementById('toast-message').innerText=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
-
-        document.getElementById('harvest-grid').innerHTML = productsList.map(p => `
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col relative">
-                <div class="h-56 bg-gray-50 flex items-center justify-center p-8 relative overflow-hidden group-hover:bg-white transition-colors">
-                    <img src="${p.photo_url}" class="h-full w-auto object-contain transform group-hover:scale-110 transition duration-500 drop-shadow-sm">
-                </div>
-                <div class="p-5 flex flex-col flex-grow">
-                    <div class="flex justify-between items-center mb-2"><h4 class="text-lg font-bold text-gray-900">${p.name}</h4><span class="text-green-800 font-bold bg-green-100 px-3 py-1 rounded-full text-sm">₹${p.price}</span></div>
-                    <p class="text-xs text-gray-500 mb-5 font-semibold uppercase tracking-wider">${p.quantity}</p>
-                    <button onclick="addToCart(${p.id})" class="mt-auto w-full py-3 bg-gray-900 text-white rounded-xl text-sm font-bold hover:bg-green-700 transition">Add +</button>
-                </div>
+        document.getElementById('harvest-grid').innerHTML = productsList.filter(p => typeof p.id === 'number').map(p => `
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col p-4">
+                <div class="h-28 flex items-center justify-center mb-4"><img src="${p.photo_url}" class="h-full object-contain"></div>
+                <h4 class="text-sm font-bold text-gray-800">${p.name}</h4>
+                <div class="flex justify-between items-center mt-4"><span class="font-bold text-green-700">₹${p.price}</span><button onclick="addToCart(${p.id})" class="bg-gray-900 text-white w-8 h-8 rounded-lg flex items-center justify-center text-xs">+</button></div>
             </div>`).join('');
 
-        // Floating Hero
-        const floatContainer = document.getElementById('floating-container');
-        const heroItems = [...productsList, {photo_url:"https://www.freepngimg.com/thumb/gold/26-gold-coin-png-image-thumb.png", isCoin:true}];
-        for(let i=0; i<50; i++) {
-            const item = heroItems[Math.floor(Math.random()*heroItems.length)];
-            const wrapper = document.createElement('div'); wrapper.classList.add('floating-wrapper');
-            wrapper.style.left = Math.random()*100+'%'; wrapper.style.top = Math.random()*100+'%'; wrapper.style.animationDuration = (15+Math.random()*10)+'s';
-            const img = document.createElement('img'); img.src = item.photo_url; img.classList.add('floating-item'); if(item.isCoin) img.classList.add('floating-coin');
-            img.style.width = (30+Math.random()*60)+'px'; img.onerror = function(){wrapper.style.display='none'};
-            wrapper.appendChild(img); floatContainer.appendChild(wrapper);
-        }
-        
-        // Gemini AI (Provided Key)
-        const geminiKey = "AIzaSyBAhdK1ZXdCjWUXK_HG9JvJ2PzFRijYPDc";
-        window.generateRecipe = async () => {
-            const ing = document.getElementById('recipe-ingredients').value; if(!ing) return alert("Enter ingredients");
-            document.getElementById('btn-recipe').innerText = "Cooking...";
-            try {
-                const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${geminiKey}`, {
-                    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({contents:[{parts:[{text:`Chef mode: Create a recipe for ${ing}. If input is Telugu, output Telugu.`}]}]})
-                });
-                const d = await r.json(); document.getElementById('recipe-result').innerText = d.candidates[0].content.parts[0].text; document.getElementById('recipe-result').classList.remove('hidden');
-            } catch(e) { alert("AI Error"); } document.getElementById('btn-recipe').innerText = "Create Recipe";
-        };
-        window.askAgronomist = async () => {
-            const q = document.getElementById('agri-question').value; if(!q) return alert("Ask something");
-            document.getElementById('btn-agri').innerText = "Thinking...";
-            try {
-                const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${geminiKey}`, {
-                    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({contents:[{parts:[{text:`Agronomist mode: Answer about farming: ${q}. Support Telugu.`}]}]})
-                });
-                const d = await r.json(); document.getElementById('agri-result').innerText = d.candidates[0].content.parts[0].text; document.getElementById('agri-result').classList.remove('hidden');
-            } catch(e) { alert("AI Error"); } document.getElementById('btn-agri').innerText = "Ask Question";
-        };
+        setInterval(() => { goldRate = 7200 + Math.random() * 50; document.getElementById('live-gold-rate').innerText = `₹${Math.floor(goldRate)}/g`; }, 3000);
 
         window.addEventListener('scroll', () => {
-            const trigger = window.innerHeight * 0.85;
-            document.querySelectorAll('.reveal').forEach(b => { if(b.getBoundingClientRect().top < trigger) b.classList.add('active'); });
-            document.querySelectorAll('.floating-item').forEach(i => i.style.transform = `rotate(${window.scrollY * 0.1}deg)`);
+            document.querySelectorAll('.reveal').forEach(b => { if(b.getBoundingClientRect().top < window.innerHeight * 0.9) b.classList.add('active'); });
         });
+        
+        // Floating Background items for mobile
+        const fc = document.getElementById('floating-container');
+        for(let i=0; i<15; i++) {
+            const w = document.createElement('div'); w.className = 'floating-wrapper';
+            w.style.left = Math.random()*100+'%'; w.style.top = Math.random()*100+'%'; w.style.animationDuration = (15+Math.random()*10)+'s';
+            const img = document.createElement('img'); img.src = productsList[Math.floor(Math.random()*8)].photo_url; img.className = 'floating-item';
+            w.appendChild(img); fc.appendChild(w);
+        }
     </script>
 </body>
 </html>
